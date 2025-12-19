@@ -75,7 +75,7 @@ function App() {
           }
         />
 
-        <Route path="/menu" element={<Menu />} />
+        <Route path="/menu/:qrCode" element={<Menu />} />
 
         {/* ADMIN */}
         <Route

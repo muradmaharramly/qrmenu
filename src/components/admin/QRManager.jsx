@@ -72,7 +72,7 @@ const QRManager = () => {
     setLoading(true);
     try {
       const code = `QR-${Date.now()}`;
-      const menuUrl = `https://qr-menyu.netlify.app/menu/${code}`;
+      const menuUrl = `https://qr-menyu.netlify.app/#/menu/${code}`;
 
 
       const { data, error } = await supabase

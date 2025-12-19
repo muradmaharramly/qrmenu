@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react'
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom' // <-- HashRouter
 import { useDispatch, useSelector } from 'react-redux'
 import { supabase } from './services/supabase'
 import { setUser } from './features/auth/authSlice'
@@ -63,7 +63,7 @@ function App() {
   }, [dispatch])
 
   return (
-    <BrowserRouter>
+    <HashRouter> {/* <-- burada BrowserRouter əvəzinə HashRouter */}
       <Routes>
         {/* PUBLIC */}
         <Route
@@ -136,7 +136,7 @@ function App() {
         {/* DEFAULT */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 

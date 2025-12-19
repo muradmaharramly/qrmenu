@@ -30,44 +30,44 @@ const AdminLayout = ({ children }) => {
     }, []);
 
 
-const handleLogout = async () => {
-  const result = await MySwal.fire({
-    title: 'Çıxış etmək istədiyinizə əminsiniz?',
-    text: 'Hesabınızdan çıxacaqsınız',
-    icon: 'warning',
-    showCancelButton: true,
-    showConfirmButton: true,           
-    confirmButtonText: 'Bəli, çıxış et', 
-    cancelButtonText: 'İmtina et',
-    reverseButtons: true,
-    customClass: {
-      popup: 'swal-popup',
-      title: 'swal-title',
-      content: 'swal-text',
-      confirmButton: 'swal-confirm-btn',
-      cancelButton: 'swal-cancel-btn'
-    }
-  });
+    const handleLogout = async () => {
+        const result = await MySwal.fire({
+            title: 'Çıxış etmək istədiyinizə əminsiniz?',
+            text: 'Hesabınızdan çıxacaqsınız',
+            icon: 'warning',
+            showCancelButton: true,
+            showConfirmButton: true,
+            confirmButtonText: 'Bəli, çıxış et',
+            cancelButtonText: 'İmtina et',
+            reverseButtons: true,
+            customClass: {
+                popup: 'swal-popup',
+                title: 'swal-title',
+                content: 'swal-text',
+                confirmButton: 'swal-confirm-btn',
+                cancelButton: 'swal-cancel-btn'
+            }
+        });
 
-  if (!result.isConfirmed) return; 
+        if (!result.isConfirmed) return;
 
-  await supabase.auth.signOut();
-  dispatch(logoutUser());
-  navigate('/login', { replace: true });
+        await supabase.auth.signOut();
+        dispatch(logoutUser());
+        navigate('/login', { replace: true });
 
-  MySwal.fire({
-    title: 'Çıxış edildi!',
-    icon: 'success',
-    showConfirmButton: false, 
-    timer: 1600,             
-    timerProgressBar: true,
-    customClass: {
-      popup: 'swal-popup',
-      title: 'swal-title',
-      content: 'swal-text'
-    }
-  });
-};
+        MySwal.fire({
+            title: 'Çıxış edildi!',
+            icon: 'success',
+            showConfirmButton: false,
+            timer: 1600,
+            timerProgressBar: true,
+            customClass: {
+                popup: 'swal-popup',
+                title: 'swal-title',
+                content: 'swal-text'
+            }
+        });
+    };
 
 
 
@@ -106,12 +106,14 @@ const handleLogout = async () => {
                 <div><div className="admin-info">
                     <div className="user-icon">
                         <CiUser />
+
+                            <span className="active-dot"></span>
                     </div>
 
-                    <span className="admin-role">
-                        {userEmail }
-                    </span>
+                    <span className="admin-role">{userEmail}</span>
                 </div>
+
+
 
                     <button onClick={handleLogout} className="logout-btn">
                         {authLoading ? 'Çıxış edilir...' : 'Çıxış et'}<IoMdLogOut />

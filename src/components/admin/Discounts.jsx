@@ -11,15 +11,20 @@ import { Plus, Edit2, Trash2, Percent } from 'lucide-react';
 import DiscountModal from './DiscountModal';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
+import { IoSearch } from 'react-icons/io5';
 
 const Discounts = () => {
   const dispatch = useDispatch();
+
   const { discounts, loading } = useSelector(state => state.discount);
   const { items, sets } = useSelector(state => state.menu);
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingDiscount, setEditingDiscount] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
-  const [discountsPerPage] = useState(5); // hər səhifədə 5 endirim göstər
+  const [discountsPerPage] = useState(5);
+  const [searchTerm, setSearchTerm] = useState('');
+
   const MySwal = withReactContent(Swal);
 
   useEffect(() => {
@@ -38,73 +43,81 @@ const Discounts = () => {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id) => {
-    const result = await MySwal.fire({
-      title: 'Endirimi silmək istədiyinizə əminsiniz?',
-      icon: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Bəli, sil',
-      cancelButtonText: 'İmtina et',
+ const handleDelete = async (id) => {
+  const result = await MySwal.fire({
+    title: 'Endirimi silmək istədiyinizə əminsiniz?',
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Bəli, sil',
+    cancelButtonText: 'İmtina et',
+    customClass: {
+      popup: 'swal-popup',
+      title: 'swal-title',
+      content: 'swal-text',
+      confirmButton: 'swal-confirm-btn',
+      cancelButton: 'swal-cancel-btn',
+    },
+    reverseButtons: true,
+  });
+
+  if (result.isConfirmed) {
+    await dispatch(deleteDiscount(id));
+  }
+};
+
+const handleSave = async (data) => {
+  try {
+    if (editingDiscount) {
+      await dispatch(
+        updateDiscount({
+          id: editingDiscount.id,
+          updates: data,
+        })
+      );
+
+      await MySwal.fire({
+        icon: 'success',
+        title: 'Endirim yeniləndi',
+        text: 'Endirim məlumatları dəyişdirildi',
+        customClass: {
+          popup: 'swal-popup',
+          title: 'swal-title',
+          content: 'swal-text',
+          confirmButton: 'swal-confirm-btn',
+        },
+      });
+    } else {
+      await dispatch(addDiscount(data));
+
+      await MySwal.fire({
+        icon: 'success',
+        title: 'Endirim yaradıldı',
+        text: 'Yeni endirim uğurla əlavə olundu',
+        customClass: {
+          popup: 'swal-popup',
+          title: 'swal-title',
+          content: 'swal-text',
+          confirmButton: 'swal-confirm-btn',
+        },
+      });
+    }
+
+    setIsModalOpen(false);
+  } catch (error) {
+    MySwal.fire({
+      icon: 'error',
+      title: 'Xəta',
+      text: 'Endirim əməliyyatı baş tutmadı',
       customClass: {
         popup: 'swal-popup',
         title: 'swal-title',
         content: 'swal-text',
         confirmButton: 'swal-confirm-btn',
-        cancelButton: 'swal-cancel-btn'
       },
-      reverseButtons: true
     });
-
-    if (result.isConfirmed) {
-      await dispatch(deleteDiscount(id));
-    }
   }
+};
 
-  const handleSave = async (data) => {
-    try {
-      if (editingDiscount) {
-        await dispatch(updateDiscount({ id: editingDiscount.id, updates: data }));
-        await MySwal.fire({
-          icon: 'success',
-          title: 'Endirim yeniləndi',
-          text: 'Endirim məlumatları dəyişdirildi',
-          customClass: {
-            popup: 'swal-popup',
-            title: 'swal-title',
-            content: 'swal-text',
-            confirmButton: 'swal-confirm-btn'
-          }
-        });
-      } else {
-        await dispatch(addDiscount(data));
-        await MySwal.fire({
-          icon: 'success',
-          title: 'Endirim yaradıldı',
-          text: 'Yeni endirim uğurla əlavə olundu',
-          customClass: {
-            popup: 'swal-popup',
-            title: 'swal-title',
-            content: 'swal-text',
-            confirmButton: 'swal-confirm-btn'
-          }
-        });
-      }
-
-      setIsModalOpen(false);
-    } catch (error) {
-      MySwal.fire({
-        icon: 'error',
-        title: 'Xəta',
-        text: 'Endirim əməliyyatı baş tutmadı',
-        customClass: {
-          popup: 'swal-popup',
-          title: 'swal-title',
-          content: 'swal-text',
-          confirmButton: 'swal-confirm-btn'
-        }
-      });
-    }
-  };
 
   const getItemName = (discount) => {
     if (discount.menu_item_id) {
@@ -116,47 +129,80 @@ const Discounts = () => {
     }
   };
 
-  // -------------------
-  // Pagination
+  // -------------------------
+  // SEARCH
+  const filteredDiscounts = discounts.filter(discount =>
+    getItemName(discount).toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  // -------------------------
+  // PAGINATION
   const indexOfLastDiscount = currentPage * discountsPerPage;
   const indexOfFirstDiscount = indexOfLastDiscount - discountsPerPage;
-  const currentDiscounts = discounts.slice(indexOfFirstDiscount, indexOfLastDiscount);
+  const currentDiscounts = filteredDiscounts.slice(
+    indexOfFirstDiscount,
+    indexOfLastDiscount
+  );
 
   const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(discounts.length / discountsPerPage); i++) {
+  for (let i = 1; i <= Math.ceil(filteredDiscounts.length / discountsPerPage); i++) {
     pageNumbers.push(i);
   }
 
-  const paginate = (pageNumber) => setCurrentPage(pageNumber);
-
   if (loading) {
-    return <div className="loading"><div className="spinner"></div></div>;
+    return (
+      <div className="loading">
+        <div className="spinner"></div>
+      </div>
+    );
   }
 
   return (
     <div className="card">
+      {/* HEADER */}
       <div className="card-header">
-        <h2>Endirimlər</h2>
-        <button className="btn btn-primary" onClick={handleAdd}>
-          <Plus size={20} />
-          Yeni Endirim
-        </button>
+        <h2>
+          Endirimlər <span className="count">({discounts.length})</span>
+        </h2>
+
+        <div className="header-actions">
+          <div className='search-bar'>
+            <input
+            type="text"
+            className="search-input"
+            placeholder="Axtar"
+            value={searchTerm}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
+          />
+          <IoSearch />
+          </div>
+
+          <button className="btn btn-primary" onClick={handleAdd}>
+            <Plus size={20} />
+            Yeni Endirim
+          </button>
+        </div>
       </div>
+
+      {/* BODY */}
       <div className="card-body">
-        {discounts.length === 0 ? (
+        {filteredDiscounts.length === 0 ? (
           <div className="empty-state">
             <Percent size={48} />
-            <p>Endirim yoxdur</p>
+            <p>Endirim tapılmadı</p>
           </div>
         ) : (
           <>
             <table className="data-table">
               <thead>
                 <tr>
-                  <th>Məhsul/Set</th>
+                  <th>Məhsul / Set</th>
                   <th>Endirim %</th>
-                  <th>Başlama Saatı</th>
-                  <th>Bitmə Saatı</th>
+                  <th>Başlama</th>
+                  <th>Bitmə</th>
                   <th>Status</th>
                   <th>Əməliyyatlar</th>
                 </tr>
@@ -174,13 +220,13 @@ const Discounts = () => {
                       </span>
                     </td>
                     <td className="actions">
-                      <button 
+                      <button
                         className="btn btn-sm btn-secondary btn-icon"
                         onClick={() => handleEdit(discount)}
                       >
                         <Edit2 size={16} />
                       </button>
-                      <button 
+                      <button
                         className="btn btn-sm btn-danger btn-icon"
                         onClick={() => handleDelete(discount.id)}
                       >
@@ -192,14 +238,13 @@ const Discounts = () => {
               </tbody>
             </table>
 
-            {/* Pagination */}
             {pageNumbers.length > 1 && (
               <div className="pagination">
                 {pageNumbers.map(number => (
                   <button
                     key={number}
-                    onClick={() => paginate(number)}
                     className={`page-btn ${currentPage === number ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(number)}
                   >
                     {number}
                   </button>

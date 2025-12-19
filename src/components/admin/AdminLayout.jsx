@@ -74,7 +74,7 @@ const handleLogout = async () => {
     return (
         <div className="admin-panel">
             <aside className="sidebar">
-                <div><div className="logo"><img src={qrLogo}></img>QR Menu</div>
+                <div><div className="logo"><img src={qrLogo}></img>QR Menyu</div>
                     <ul className="nav-menu">
                         <li>
                             <NavLink to="/admin/home">

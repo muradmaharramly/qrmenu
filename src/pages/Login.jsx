@@ -22,7 +22,7 @@ const Login = () => {
   return (
     <div className="login-container">
       <div className="login-card">
-        <h1>QR Menu Admin</h1>
+        <h1>QR Menyu Admin</h1>
         <form onSubmit={handleSubmit}>
           <div className="form-group">
             <label>Email</label>

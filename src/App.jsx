@@ -75,7 +75,7 @@ function App() {
           }
         />
 
-        <Route path="/menu/:qrCode" element={<Menu />} />
+        <Route path="/menu/*" element={<Menu />} />
 
         {/* ADMIN */}
         <Route
@@ -135,7 +135,6 @@ function App() {
 
         {/* DEFAULT */}
         <Route path="*" element={<Navigate to="/login" replace />} />
-        <Route path="/menu/:qrCode" element={<Menu />} />
       </Routes>
     </BrowserRouter>
   )

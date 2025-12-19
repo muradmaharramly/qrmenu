@@ -1,0 +1,120 @@
+
+@mixin flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@mixin flex-between {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@mixin card {
+  background: $main-light;
+  border-radius: $radius-md;
+  padding: $space-lg;
+  box-shadow: $shadow-soft;
+}
+
+@mixin button-base {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+  padding: $space-sm $space-lg;
+  border: none;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+}
+
+@mixin button-primary {
+  @include button-base;
+  background: $btn-primary-bg;
+  color: $black;
+
+  &:hover:not(:disabled) {
+    background: $btn-primary-hover;
+    transform: translateY(-2px);
+    box-shadow: $shadow-medium;
+  }
+}
+
+@mixin button-secondary {
+  @include button-base;
+  background: $btn-secondary-bg;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: $btn-secondary-hover;
+  }
+}
+
+@mixin button-success {
+  @include button-base;
+  background: $success;
+  color: $white;
+
+  &:hover:not(:disabled) {
+    background: $success-hover;
+  }
+}
+
+@mixin button-danger {
+  @include button-base;
+  @include flex-center();
+  background: $box-light;
+  color: $primary;
+  border: 2px solid $primary;
+  svg{
+    font-size: $font-lg;
+    margin-bottom: -2px;
+  }
+
+  &:hover:not(:disabled) {
+    background: $danger-hover;
+    color: $box-light;
+  }
+}
+
+@mixin input-base {
+  width: 100%;
+  padding: $space-sm $space-md;
+  border: 1px solid $border-light;
+  border-radius: $radius-md;
+  font-size: $font-sm;
+  color: $white;
+  background: $main-light;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    box-shadow: 0 0 0 3px rgba($primary, 0.1);
+  }
+
+  &::placeholder {
+    color: $black-2nd;
+  }
+}
+
+@mixin responsive($breakpoint) {
+  @if $breakpoint == mobile {
+    @media (max-width: $mobile) { @content; }
+  } @else if $breakpoint == tablet {
+    @media (max-width: $tablet) { @content; }
+  } @else if $breakpoint == desktop {
+    @media (max-width: $desktop) { @content; }
+  }
+}
+
+

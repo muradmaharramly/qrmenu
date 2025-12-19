@@ -1,0 +1,110 @@
+@import 'mixins';
+.loading-container {
+  @include flex-center;
+  flex-direction: column;
+  padding: $space-xxl;
+  
+  .loading-text {
+    margin-top: $space-md;
+    color: $black-2nd;
+    font-size: $font-sm;
+  }
+}
+
+.alert {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $space-md;
+  border-radius: $radius-md;
+  margin-bottom: $space-md;
+  animation: slideIn 0.3s ease;
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  .alert-content {
+    display: flex;
+    align-items: center;
+    gap: $space-sm;
+  }
+
+  .alert-close {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: $space-xs;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+
+    &:hover {
+      opacity: 1;
+    }
+  }
+}
+
+.modal-confirm {
+  max-width: 400px;
+  text-align: center;
+
+  .confirm-icon {
+    @include flex-center;
+    margin-bottom: $space-lg;
+  }
+
+  h3 {
+    font-size: $font-lg;
+    margin-bottom: $space-md;
+  }
+
+  p {
+    color: $black-2nd;
+    margin-bottom: $space-xl;
+  }
+
+  .confirm-actions {
+    display: flex;
+    gap: $space-md;
+
+    button {
+      flex: 1;
+    }
+  }
+}
+
+.empty-icon {
+  opacity: 0.3;
+  margin-bottom: $space-md;
+}
+
+.set-card {
+  .set-header {
+    display: flex;
+    align-items: center;
+    gap: $space-xs;
+    margin-bottom: $space-xs;
+
+    svg {
+      color: $primary-dark;
+    }
+  }
+}
+
+.item-category {
+  display: inline-block;
+  padding: $space-xs $space-sm;
+  background: $box-light;
+  color: $soft-black;
+  font-size: $font-xs;
+  border-radius: $radius-sm;
+  margin-top: $space-sm;
+}

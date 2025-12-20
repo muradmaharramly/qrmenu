@@ -100,6 +100,7 @@ const MenuItemModal = ({ item, onSave, onClose }) => {
             <label>
               <input
                 type="checkbox"
+                class="custom-checkbox" 
                 name="is_available"
                 checked={formData.is_available}
                 onChange={handleChange}

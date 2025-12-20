@@ -144,6 +144,7 @@ const DiscountModal = ({ discount, menuItems, sets, onSave, onClose }) => {
             <label>
               <input
                 type="checkbox"
+                class="custom-checkbox" 
                 name="is_active"
                 checked={formData.is_active}
                 onChange={handleChange}

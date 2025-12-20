@@ -108,6 +108,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
                 <label key={item.id} className="checkbox-item">
                   <input
                     type="checkbox"
+                    class="custom-checkbox" 
                     checked={selectedItems.includes(item.id)}
                     onChange={() => handleItemToggle(item.id)}
                   />
@@ -122,6 +123,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
               <input
                 type="checkbox"
                 name="is_available"
+                class="custom-checkbox" 
                 checked={formData.is_available}
                 onChange={handleChange}
               />

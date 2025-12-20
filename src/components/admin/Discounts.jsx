@@ -75,29 +75,27 @@ const handleSave = async (data) => {
         })
       );
 
-      await MySwal.fire({
+      MySwal.fire({
         icon: 'success',
         title: 'Endirim yeniləndi',
         text: 'Endirim məlumatları dəyişdirildi',
+        timer: 1800,
+        showConfirmButton: false,
         customClass: {
           popup: 'swal-popup',
-          title: 'swal-title',
-          content: 'swal-text',
-          confirmButton: 'swal-confirm-btn',
         },
       });
     } else {
       await dispatch(addDiscount(data));
 
-      await MySwal.fire({
+      MySwal.fire({
         icon: 'success',
         title: 'Endirim yaradıldı',
         text: 'Yeni endirim uğurla əlavə olundu',
+        timer: 1800,
+        showConfirmButton: false,
         customClass: {
           popup: 'swal-popup',
-          title: 'swal-title',
-          content: 'swal-text',
-          confirmButton: 'swal-confirm-btn',
         },
       });
     }
@@ -108,11 +106,10 @@ const handleSave = async (data) => {
       icon: 'error',
       title: 'Xəta',
       text: 'Endirim əməliyyatı baş tutmadı',
+      timer: 2000,
+      showConfirmButton: false,
       customClass: {
-        popup: 'swal-popup',
-        title: 'swal-title',
-        content: 'swal-text',
-        confirmButton: 'swal-confirm-btn',
+        popup: 'swal-popup error',
       },
     });
   }

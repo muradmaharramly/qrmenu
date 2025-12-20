@@ -19,7 +19,7 @@ const MenuItems = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(1);
+    const [itemsPerPage] = useState(6);
     const [searchTerm, setSearchTerm] = useState('');
 
     const MySwal = withReactContent(Swal);

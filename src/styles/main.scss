@@ -522,6 +522,54 @@ svg{
     width: 95%;
     padding: $space-lg;
   }
+    .custom-checkbox {
+      margin-right: $space-md;
+      margin-bottom: -$space-xs;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 10px;
+  height: 20px;
+  border-radius: $radius-sm;
+  background: $box-dark;
+  border: 1px solid $border-dark;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+  box-shadow: $shadow-soft;
+
+  &:hover {
+    background: $box-hover-dark;
+    border-color: $primary-light;
+  }
+
+  &:checked {
+    background: $primary;
+    border-color: $primary;
+  }
+
+  &:checked::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid $white;
+    border-bottom: 2px solid $white;
+    transform: rotate(45deg);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($primary, 0.35);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
 }
 // ============================================
 // MENU DISPLAY STYLES
@@ -583,6 +631,7 @@ svg{
   position: relative;
   overflow: hidden;
   transition: transform 0.2s;
+  padding-bottom: 50px;
 
   &:hover {
     transform: translateY(-4px);
@@ -598,16 +647,21 @@ svg{
   }
 
   .item-badge {
+    font-family: "Dancing Script", cursive;
     position: absolute;
-    top: $space-md;
-    right: $space-md;
+    top: -$space-lg;
+    right:- $space-lg;
     background: $danger;
-    color: $white-2nd;
-    padding: $space-xs $space-sm;
-    border-radius: $radius-md;
-    font-size: $font-xs;
-    font-weight: 600;
-  }
+    color: $black;
+    padding: $space-xl $space-xl $space-sm $space-sm;
+    border-radius: $radius-lg;
+    font-size: $font-lg;
+    font-weight: 700;
+    -webkit-border-radius: $radius-lg;
+    -moz-border-radius: $radius-lg;
+    -ms-border-radius: $radius-lg;
+    -o-border-radius: $radius-lg;
+}
 
   .item-info {
     h3 {
@@ -631,8 +685,8 @@ svg{
       font-weight: 700;
       color: $primary-dark;
       position: absolute;
-      top: 20px;
-      right: 50px;
+      bottom: $space-md;
+      right: $space-md;
 
       &.original-price {
         text-decoration: line-through;
@@ -845,6 +899,54 @@ svg{
   border: 1px solid $border-light;
   border-radius: $radius-md;
   padding: $space-sm;
+  .custom-checkbox {
+    margin-bottom: 0 !important;
+    margin-right: 0 !important;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  width: 10px;
+  height: 20px;
+  border-radius: $radius-sm;
+  background: $box-dark;
+  border: 1px solid $border-dark;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.25s ease;
+  box-shadow: $shadow-soft;
+
+  &:hover {
+    background: $box-hover-dark;
+    border-color: $primary-light;
+  }
+
+  &:checked {
+    background: $primary;
+    border-color: $primary;
+  }
+
+  &:checked::after {
+    content: '';
+    position: absolute;
+    top: 6px;
+    left: 12px;
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid $white;
+    border-bottom: 2px solid $white;
+    transform: rotate(45deg);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba($primary, 0.35);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+}
 
   .checkbox-item {
     display: flex;
@@ -853,14 +955,18 @@ svg{
     padding: $space-sm;
     cursor: pointer;
     transition: background 0.2s;
-
+    border-radius: $radius-md;
+    
+    -webkit-border-radius: $radius-md;
+    -moz-border-radius: $radius-md;
+    -ms-border-radius: $radius-md;
+    -o-border-radius: $radius-md;
     &:hover {
       background: $box-light;
     }
 
-    input[type="checkbox"] {
-      width: auto;
-    }
+
+    
   }
 }
 

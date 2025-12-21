@@ -200,7 +200,7 @@ const Menu = () => {
                   const price = getDiscountedPrice(item.id, item.price);
                   return (
                     <div key={item.id} className="menu-item-card">
-                      {item.image_url && <img src={item.image_url} alt={item.name} />}
+                      {item.image_url && <div className='item-image'><img src={item.image_url} alt={item.name} /></div>}
                       {price.hasDiscount && (
                         <span className="item-badge">-{price.percent}%</span>
                       )}
@@ -236,7 +236,7 @@ const Menu = () => {
                 const price = getDiscountedPrice(item.id, item.price);
                 return (
                   <div key={item.id} className="menu-item-card">
-                    {item.image_url && <img src={item.image_url} alt={item.name} />}
+                    {item.image_url && <div className='item-image'><img src={item.image_url} alt={item.name} /></div>}
                     {price.hasDiscount && (
                       <span className="item-badge">-{price.percent}%</span>
                     )}

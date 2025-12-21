@@ -1,6 +1,6 @@
-
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Upload, Image as ImageIcon } from 'lucide-react';
+import { supabase } from '../../services/supabaseClient'; 
 
 const MenuItemModal = ({ item, onSave, onClose }) => {
   const [formData, setFormData] = useState({
@@ -11,10 +11,16 @@ const MenuItemModal = ({ item, onSave, onClose }) => {
     image_url: '',
     is_available: true
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (item) {
       setFormData(item);
+      if (item.image_url) {
+        setImagePreview(item.image_url);
+      }
     }
   }, [item]);
 
@@ -26,9 +32,86 @@ const MenuItemModal = ({ item, onSave, onClose }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Fayl ölçüsü 5MB-dan çox ola bilməz');
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        alert('Yalnız şəkil faylları yükləyə bilərsiniz');
+        return;
+      }
+
+      setImageFile(file);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!imageFile) return formData.image_url;
+
+    try {
+      setUploading(true);
+
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `menu-items/${fileName}`;
+
+      if (item?.image_url) {
+        const oldPath = item.image_url.split('/').pop();
+        if (oldPath && oldPath !== fileName) {
+          await supabase.storage
+            .from('menu-images')
+            .remove([`menu-items/${oldPath}`]);
+        }
+      }
+
+      const { data, error } = await supabase.storage
+        .from('menu-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('menu-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Şəkil yükləmə xətası:', error);
+      alert('Şəkil yükləmədə xəta baş verdi');
+      return formData.image_url;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSave(formData);
+
+    const imageUrl = await uploadImage();
+
+    onSave({
+      ...formData,
+      image_url: imageUrl
+    });
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setFormData(prev => ({ ...prev, image_url: '' }));
   };
 
   return (
@@ -74,7 +157,6 @@ const MenuItemModal = ({ item, onSave, onClose }) => {
                 required
               />
             </div>
-
             <div className="form-group">
               <label>Kateqoriya</label>
               <input
@@ -87,20 +169,42 @@ const MenuItemModal = ({ item, onSave, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label>Şəkil URL</label>
-            <input
-              type="url"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleChange}
-            />
+            <label>Şəkil</label>
+            <div className="image-upload-container">
+              {imagePreview ? (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                  <button
+                    type="button"
+                    className="remove-image-btn"
+                    onClick={removeImage}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              ) : (
+                <label className="upload-label">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{ display: 'none' }}
+                  />
+                  <div className="upload-placeholder">
+                    <ImageIcon size={48} />
+                    <p>Şəkil seçin</p>
+                    <span>PNG, JPG, WEBP (Max 5MB)</span>
+                  </div>
+                </label>
+              )}
+            </div>
           </div>
 
           <div className="form-group">
             <label>
               <input
                 type="checkbox"
-                class="custom-checkbox" 
+                className="custom-checkbox"
                 name="is_available"
                 checked={formData.is_available}
                 onChange={handleChange}
@@ -113,12 +217,13 @@ const MenuItemModal = ({ item, onSave, onClose }) => {
             <button type="button" className="btn btn-secondary" onClick={onClose}>
               Ləğv et
             </button>
-            <button type="submit" className="btn btn-primary">
-              Yadda saxla
+            <button type="submit" className="btn btn-primary" disabled={uploading}>
+              {uploading ? 'Yüklənir...' : 'Yadda saxla'}
             </button>
           </div>
         </form>
       </div>
+
     </div>
   );
 };

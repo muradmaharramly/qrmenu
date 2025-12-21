@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, Upload, ImageIcon } from 'lucide-react';
+import { supabase } from '../../services/supabaseClient';
 
 const SetModal = ({ set, menuItems, onSave, onClose }) => {
   const [formData, setFormData] = useState({
@@ -10,6 +11,9 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
     is_available: true
   });
   const [selectedItems, setSelectedItems] = useState([]);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (set) {
@@ -21,6 +25,9 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
         is_available: set.is_available
       });
       setSelectedItems(set.set_items?.map(si => si.menu_item_id) || []);
+      if (set.image_url) {
+        setImagePreview(set.image_url);
+      }
     }
   }, [set]);
 
@@ -40,12 +47,90 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
     );
   };
 
-  const handleSubmit = (e) => {
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert('Fayl ölçüsü 5MB-dan çox ola bilməz');
+        return;
+      }
+
+      // Fayl növü yoxlaması
+      if (!file.type.startsWith('image/')) {
+        alert('Yalnız şəkil faylları yükləyə bilərsiniz');
+        return;
+      }
+
+      setImageFile(file);
+      
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const uploadImage = async () => {
+    if (!imageFile) return formData.image_url;
+
+    try {
+      setUploading(true);
+
+      const fileExt = imageFile.name.split('.').pop();
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+      const filePath = `sets/${fileName}`;
+
+      if (set?.image_url) {
+        const oldPath = set.image_url.split('/').pop();
+        if (oldPath && oldPath !== fileName) {
+          await supabase.storage
+            .from('menu-images')
+            .remove([`sets/${oldPath}`]);
+        }
+      }
+
+      const { data, error } = await supabase.storage
+        .from('menu-images')
+        .upload(filePath, imageFile, {
+          cacheControl: '3600',
+          upsert: false
+        });
+
+      if (error) throw error;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('menu-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error) {
+      console.error('Şəkil yükləmə xətası:', error);
+      alert('Şəkil yükləmədə xəta baş verdi');
+      return formData.image_url;
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    const imageUrl = await uploadImage();
+    
     onSave({
-      set: formData,
+      set: {
+        ...formData,
+        image_url: imageUrl
+      },
       items: selectedItems
     });
+  };
+
+  const removeImage = () => {
+    setImageFile(null);
+    setImagePreview('');
+    setFormData(prev => ({ ...prev, image_url: '' }));
   };
 
   return (
@@ -58,7 +143,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit}>
+        <div>
           <div className="form-group">
             <label>Set Adı *</label>
             <input
@@ -92,13 +177,35 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
           </div>
 
           <div className="form-group">
-            <label>Şəkil URL</label>
-            <input
-              type="url"
-              name="image_url"
-              value={formData.image_url}
-              onChange={handleChange}
-            />
+            <label>Şəkil</label>
+            <div className="image-upload-container">
+              {imagePreview ? (
+                <div className="image-preview">
+                  <img src={imagePreview} alt="Preview" />
+                  <button
+                    type="button"
+                    className="remove-image-btn"
+                    onClick={removeImage}
+                  >
+                    <X size={20} />
+                  </button>
+                </div>
+              ) : (
+                <label className="upload-label">
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageChange}
+                    style={{ display: 'none' }}
+                  />
+                  <div className="upload-placeholder">
+                    <ImageIcon size={48} />
+                    <p>Şəkil seçin</p>
+                    <span>PNG, JPG, WEBP (Max 5MB)</span>
+                  </div>
+                </label>
+              )}
+            </div>
           </div>
 
           <div className="form-group">
@@ -108,7 +215,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
                 <label key={item.id} className="checkbox-item">
                   <input
                     type="checkbox"
-                    class="custom-checkbox" 
+                    className="custom-checkbox" 
                     checked={selectedItems.includes(item.id)}
                     onChange={() => handleItemToggle(item.id)}
                   />
@@ -123,7 +230,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
               <input
                 type="checkbox"
                 name="is_available"
-                class="custom-checkbox" 
+                className="custom-checkbox" 
                 checked={formData.is_available}
                 onChange={handleChange}
               />
@@ -136,14 +243,15 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
               Ləğv et
             </button>
             <button 
-              type="submit" 
+              type="button" 
               className="btn btn-primary"
-              disabled={selectedItems.length === 0}
+              disabled={selectedItems.length === 0 || uploading}
+              onClick={handleSubmit}
             >
-              Yadda saxla
+              {uploading ? 'Yüklənir...' : 'Yadda saxla'}
             </button>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );

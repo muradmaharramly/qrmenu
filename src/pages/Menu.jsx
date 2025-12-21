@@ -155,7 +155,7 @@ const Menu = () => {
               const price = getSetDiscountedPrice(set.id, set.total_price);
               return (
                 <div key={set.id} className="menu-item-card">
-                  {set.image_url && <img src={set.image_url} alt={set.name} />}
+                  {set.image_url && <div className='item-image'><img src={set.image_url} alt={set.name} /></div>}
                   {price.hasDiscount && (
                     <span className="item-badge">-{price.percent}%</span>
                   )}

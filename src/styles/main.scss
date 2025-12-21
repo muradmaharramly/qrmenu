@@ -822,9 +822,27 @@ svg{
         &.actions {
           @include flex-center;
           gap: $space-sm;
+          margin-top: $space-md;
         }
       }
     }
+    .item-image {
+      @include flex-center;
+    width:60px;
+    height: 60px;
+    object-fit: cover;
+    overflow: hidden;
+    border-radius: $radius-sm;
+    margin-bottom: $space-md;
+    -webkit-border-radius: $radius-sm;
+    -moz-border-radius: $radius-sm;
+    -ms-border-radius: $radius-sm;
+    -o-border-radius: $radius-sm;
+    img{
+      width: 100%;
+      height: 100%;
+    }
+  }
   }
 
   @include responsive(tablet) {

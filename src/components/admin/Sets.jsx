@@ -12,6 +12,7 @@ import SetModal from './SetModal';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { IoSearch } from 'react-icons/io5';
+import { LuImageOff } from 'react-icons/lu';
 
 const Sets = () => {
   const dispatch = useDispatch();
@@ -193,6 +194,7 @@ const Sets = () => {
             <table className="data-table">
               <thead>
                 <tr>
+                  <th>Şəkil</th>
                   <th>Ad</th>
                   <th>Məhsullar</th>
                   <th>Qiymət</th>
@@ -203,6 +205,15 @@ const Sets = () => {
               <tbody>
                 {currentSets.map(set => (
                   <tr key={set.id}>
+                    <td>
+                      <div className="item-image">
+                        {set.image_url ? (
+                          <img src={set.image_url} alt={set.name} />
+                        ) : (
+                          <LuImageOff size={32} />
+                        )}
+                      </div>
+                    </td>
                     <td>{set.name}</td>
                     <td>{set.set_items?.length || 0} məhsul</td>
                     <td>{set.total_price} AZN</td>

@@ -11,10 +11,10 @@
 
 body {
   font-family: "Exo 2", cursive;
-  background: $soft-black;
+  background: $box-light;
   color: $white-2nd;
   line-height: 1.6;
- @include flex-center;
+  @include flex-center;
 
   
 }
@@ -120,6 +120,9 @@ body {
     gap: $space-sm;
     .search-bar{
         position: relative;
+        @include responsive(mobile) {
+        display: none;
+        }
         .search-input {
   height: 45px;
   min-width: 300px;
@@ -131,6 +134,8 @@ body {
   border: 1px solid $border-dark;
   transition: all 0.25s ease;
   box-shadow: inset 0 0 0 transparent;
+  
+    
 
   &::placeholder {
     color: $white-2nd;
@@ -164,101 +169,581 @@ svg{
 // ADMIN PANEL STYLES
 // ============================================
 
+// ============================================
+// COMPLETE ADMIN PANEL STYLES - RESPONSIVE
+// main.scss-ə əlavə edin və ya əvəz edin
+// ============================================
+
 .admin-panel {
   display: flex;
   min-height: 100vh;
+  width: 100%;
+  position: relative;
 
+  // ============================================
+  // SIDEBAR - Flex & Responsive
+  // ============================================
   .sidebar {
-    width: 260px;
+    flex: 0 0 clamp(200px, 18vw, 280px);
     background: $box-light;
     border-right: 1px solid $border-light;
-    padding: $space-lg;
-    position: fixed;
+    padding: clamp($space-md, 2vw, $space-lg);
     height: 100vh;
     overflow-y: auto;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    position: sticky;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    transition: transform 0.3s ease, left 0.3s ease;
+
+    // Custom scrollbar
+    &::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    &::-webkit-scrollbar-track {
+      background: $box-hover-light;
+    }
+
+    &::-webkit-scrollbar-thumb {
+      background: $primary;
+      border-radius: $radius-sm;
+
+      &:hover {
+        background: $primary-dark;
+      }
+    }
 
     .logo {
-      font-size: $font-xl;
+      font-size: clamp($font-lg, 2.5vw, $font-xl);
       font-weight: 700;
       color: #DC544C;
-      margin-bottom: $space-xl;
+      margin-bottom: clamp($space-md, 3vh, $space-xl);
       text-align: center;
       @include flex-center;
-      gap: 10px;
-      img{
-        width: 50px;
-        height: 50px;
+      gap: clamp(8px, 1vw, 12px);
+      flex-wrap: wrap;
+      
+      img {
+        width: clamp(35px, 5vw, 50px);
+        height: clamp(35px, 5vw, 50px);
+        object-fit: contain;
       }
     }
 
     .nav-menu {
       list-style: none;
+      flex: 1;
+      overflow-y: auto;
+      padding-right: $space-xs;
+
+      &::-webkit-scrollbar {
+        width: 4px;
+      }
 
       li {
-        margin-bottom: $space-sm;
+        margin-bottom: clamp($space-xs, 1vh, $space-sm);
 
         a {
           display: flex;
           align-items: center;
-          gap: $space-sm;
-          padding: $space-sm $space-md;
+          gap: clamp($space-xs, 1vw, $space-sm);
+          padding: clamp($space-xs, 1.5vh, $space-sm) clamp($space-sm, 2vw, $space-md);
           color: $soft-white;
           text-decoration: none;
           border-radius: $radius-md;
-          transition: all 0.2s;
+          transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+          font-size: clamp($font-xs, 1.2vw, $font-sm);
+          white-space: nowrap;
+          position: relative;
+          overflow: hidden;
+
+          svg {
+            flex-shrink: 0;
+            width: clamp(16px, 2vw, 20px);
+            height: clamp(16px, 2vw, 20px);
+            transition: transform 0.3s ease;
+          }
+
+          span {
+            transition: transform 0.3s ease;
+          }
+
+          &::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            background: $primary;
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+          }
 
           &:hover {
             background: $box-hover-light;
             color: $white-2nd;
-            transform: translateY(-5px);
-            -webkit-transform: translateY(-5px);
-            -moz-transform: translateY(-5px);
-            -ms-transform: translateY(-5px);
-            -o-transform: translateY(-5px);
-}
+            padding-left: calc(clamp($space-sm, 2vw, $space-md) + 6px);
+
+            svg {
+              transform: translateX(4px) scale(1.1);
+            }
+
+            &::before {
+              transform: scaleY(1);
+            }
+          }
 
           &.active {
             background: $primary;
             color: $white-2nd;
+            font-weight: 600;
+            padding-left: calc(clamp($space-sm, 2vw, $space-md) + 6px);
+
+            svg {
+              transform: scale(1.1);
+            }
+
+            &::before {
+              transform: scaleY(1);
+            }
           }
         }
+      }
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding-top: clamp($space-sm, 2vh, $space-md);
+      border-top: 1px solid $border-light;
+    }
+
+    .admin-info {
+      display: flex;
+      align-items: center;
+      gap: clamp(8px, 1.5vw, 12px);
+      padding: clamp($space-xs, 1.5vh, $space-sm);
+      border-radius: $radius-md;
+      background-color: $box-hover-light;
+      margin-bottom: clamp($space-xs, 1.5vh, $space-sm);
+      transition: background 0.2s;
+
+      &:hover {
+        background-color: rgba($primary, 0.1);
+      }
+
+      .user-icon {
+        @include flex-center;
+        width: clamp(32px, 4vw, 38px);
+        height: clamp(32px, 4vw, 38px);
+        position: relative;
+        font-size: clamp(18px, 2.5vw, 24px);
+        border-radius: 50%;
+        border: 1px solid $soft-white;
+        flex-shrink: 0;
+        background: linear-gradient(135deg, rgba($primary, 0.2), rgba($primary, 0.05));
+        transition: all 0.3s ease;
+
+        svg {
+          font-size: clamp(16px, 2vw, 20px);
+          color: $white;
+        }
+
+        .active-dot {
+          position: absolute;
+          top: -2px;
+          right: -2px;
+          width: clamp(6px, 1vw, 8px);
+          height: clamp(6px, 1vw, 8px);
+          background: #2ecc71;
+          border-radius: 50%;
+          border: 2px solid $box-light;
+          animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+          0%, 100% {
+            transform: scale(1);
+            opacity: 1;
+          }
+          50% {
+            transform: scale(1.1);
+            opacity: 0.8;
+          }
+        }
+      }
+
+      .admin-role {
+        font-size: clamp($font-xs, 1.2vw, $font-sm);
+        font-weight: 500;
+        color: $white;
+        letter-spacing: 0.3px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        flex: 1;
+        min-width: 0;
       }
     }
 
     .logout-btn {
       @include button-danger;
       width: 100%;
-      margin-top: $space-xl;
+      font-size: clamp($font-xs, 1.2vw, $font-sm);
+      padding: clamp($space-xs, 1.5vh, $space-sm) clamp($space-sm, 2vw, $space-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $space-xs;
+      transition: all 0.3s ease;
+
+      svg {
+        transition: transform 0.3s ease;
+      }
+
+      &:hover:not(:disabled) {
+        svg {
+          transform: translateX(4px);
+        }
+      }
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
     }
 
-    @include responsive(tablet) {
-      width: 200px;
+    // ============================================
+    // TABLET RESPONSIVE (≤ 1024px)
+    // ============================================
+    @media (max-width: $desktop) {
+      flex: 0 0 clamp(180px, 20vw, 220px);
       padding: $space-md;
+
+      .nav-menu li a {
+        span {
+          display: none;
+        }
+
+        justify-content: center;
+        padding: $space-sm;
+      }
+
+      .admin-info {
+        flex-direction: column;
+        text-align: center;
+
+        .admin-role {
+          font-size: $font-xs;
+          word-break: break-all;
+        }
+      }
     }
 
-    @include responsive(mobile) {
-      display: none;
+    // ============================================
+    // MOBILE RESPONSIVE (≤ 768px)
+    // ============================================
+    @media (max-width: $tablet) {
+      position: fixed;
+      left: -100%;
+      top: 0;
+      bottom: 0;
+      flex: 0 0 min(280px, 85vw);
+      width: min(280px, 85vw);
+      max-width: 85vw;
+      box-shadow: $shadow-heavy;
+      z-index: 1000;
+      padding: $space-lg;
+
+      &.mobile-open {
+        left: 0;
+        animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      @keyframes slideInLeft {
+        from {
+          transform: translateX(-100%);
+          opacity: 0.8;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+
+      .nav-menu li a {
+        span {
+          display: inline;
+        }
+
+        justify-content: flex-start;
+        padding: $space-sm $space-md;
+      }
+
+      .admin-info {
+        flex-direction: row;
+
+        .admin-role {
+          text-align: left;
+        }
+      }
+    }
+
+    @media (max-width: $mobile) {
+      flex: 0 0 min(100%, 320px);
+      width: 100%;
+      max-width: 100%;
     }
   }
 
+  // ============================================
+  // MAIN CONTENT - Flex & Responsive
+  // ============================================
   .main-content {
     flex: 1;
-    width: 1260px;
-    margin-left: 260px;
-    padding: $space-xl;
+    min-width: 1100px;
+    max-width: 1100px;
+    padding: clamp($space-md, 3vw, $space-xl);
+    background: $box-light;
+    overflow-x: hidden;
 
-    @include responsive(tablet) {
-      margin-left: 200px;
-      padding: $space-lg;
-    }
-
-    @include responsive(mobile) {
+    @media (max-width: $tablet) {
+      padding: clamp($space-sm, 2.5vw, $space-lg);
       margin-left: 0;
-      padding: $space-md;
+      width: 100%;
+      min-width: 600px;
+      max-width: 600px;
     }
+
+    @media (max-width: $mobile) {
+      padding: $space-sm;
+      min-width: 370px;
+      max-width: 370px;
+    }
+  }
+}
+
+// ============================================
+// MOBILE TOGGLE BUTTON
+// ============================================
+// ============================================
+// MOBILE TOP BAR - main.scss-ə əlavə edin
+// ============================================
+
+.mobile-top-bar {
+  display: none;
+  
+  @media (max-width: $tablet) {
+    display: flex;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    padding: 0 $space-md;
+    align-items: center;
+    gap: $space-md;
+    z-index: 1001;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    
+    .mobile-toggle-btn {
+      position: static; // Override fixed positioning
+      top: auto;
+      left: auto;
+      margin: 0;
+      background: rgba($white, 0.2);
+      backdrop-filter: blur(10px);
+      width: 44px;
+      height: 44px;
+      padding: $space-md;
+      box-shadow: none;
+      
+      
+      &:hover {
+        background: rgba($white, 0.3);
+        transform: scale(1.05);
+      }
+
+      &:active {
+        transform: scale(0.95);
+      }
+      
+      svg {
+        color: $white;
+        position: absolute;
+        left: $space-xs;
+        top: $space-xs;
+      }
+    }
+    
+    .page-title-mobile {
+      font-size: clamp($font-md, 3vw, $font-lg);
+      font-weight: 600;
+      color: $white;
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      letter-spacing: 0.3px;
+    }
+  }
+
+  @media (max-width: $mobile) {
+    height: 56px;
+    padding: 0 $space-sm;
+    
+    .mobile-toggle-btn {
+      width: 40px;
+      height: 40px;
+      
+      svg {
+        width: 22px;
+        height: 22px;
+      }
+    }
+    
+    .page-title-mobile {
+      font-size: $font-sm;
+    }
+  }
+}
+
+// Apply top bar spacing to main content
+.admin-panel {
+  @media (max-width: $tablet) {
+    .main-content {
+      margin-top: 60px;
+      padding-top: $space-md;
+    }
+  }
+
+  @media (max-width: $mobile) {
+    .main-content {
+      margin-top: 56px;
+      padding-top: $space-sm;
+    }
+  }
+}
+
+// Sidebar animation when opening
+.sidebar {
+  @media (max-width: $tablet) {
+    &.mobile-open {
+      animation: slideInLeft 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+    opacity: 0.8;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+// Ensure proper z-index stacking
+.mobile-overlay {
+  z-index: 998 !important;
+}
+
+.sidebar {
+  @media (max-width: $tablet) {
+    z-index: 999 !important;
+  }
+}
+
+.mobile-top-bar {
+  z-index: 1001 !important;
+}
+
+// Optional: Add subtle entrance animation
+.mobile-top-bar {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+// ============================================
+// MOBILE OVERLAY
+// ============================================
+.mobile-overlay {
+  display: none;
+  
+  &.active {
+    display: block;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(2px);
+    z-index: 999;
+    animation: fadeIn 0.3s ease;
+    cursor: pointer;
+  }
+
+  @keyframes fadeIn {
+    from { 
+      opacity: 0;
+    }
+    to { 
+      opacity: 1;
+    }
+  }
+}
+
+// ============================================
+// ADDITIONAL RESPONSIVE UTILITIES
+// ============================================
+
+// Responsive Typography
+@media (max-width: $tablet) {
+  .page-title {
+    font-size: clamp($font-lg, 4vw, $font-xl);
+  }
+
+  h2 {
+    font-size: clamp($font-md, 3vw, $font-lg);
+  }
+
+  h3 {
+    font-size: clamp($font-sm, 2.5vw, $font-md);
+  }
+}
+
+// Responsive Spacing
+@media (max-width: $mobile) {
+  .card {
+    padding: $space-md;
+    margin-bottom: $space-md;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: $space-sm;
+  }
+
+  .data-table {
+    font-size: $font-xs;
   }
 }
 
@@ -752,9 +1237,12 @@ svg{
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: $space-lg;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: $space-md;
   margin-bottom: $space-xl;
+  @include responsive(mobile) {
+        grid-template-columns: 1fr;
+      }
 }
 
 .stat-card {
@@ -807,8 +1295,8 @@ svg{
 
 .dashboard-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: $space-lg;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: $space-md;
 
   @include responsive(tablet) {
     grid-template-columns: 1fr;
@@ -849,7 +1337,7 @@ svg{
 
 .qr-container {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 1.2fr;
   gap: $space-xl;
   align-items: start;
 
@@ -859,7 +1347,7 @@ svg{
 
   .qr-preview {
     @include flex-center;
-    padding: $space-xl;
+    padding: $space-xxl $space-sm;
     background: $box-light;
     border-radius: $radius-md;
 

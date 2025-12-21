@@ -41,76 +41,76 @@ const Sets = () => {
   };
 
   const handleDelete = async (id) => {
-  const result = await MySwal.fire({
-    title: 'Seti silmək istədiyinizə əminsiniz?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Bəli, sil',
-    cancelButtonText: 'İmtina et',
-    customClass: {
-      popup: 'swal-popup',
-      title: 'swal-title',
-      content: 'swal-text',
-      confirmButton: 'swal-confirm-btn',
-      cancelButton: 'swal-cancel-btn',
-    },
-    reverseButtons: true,
-  });
+    const result = await MySwal.fire({
+      title: 'Seti silmək istədiyinizə əminsiniz?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Bəli, sil',
+      cancelButtonText: 'İmtina et',
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        content: 'swal-text',
+        confirmButton: 'swal-confirm-btn',
+        cancelButton: 'swal-cancel-btn',
+      },
+      reverseButtons: true,
+    });
 
-  if (result.isConfirmed) {
-    await dispatch(deleteSet(id));
-  }
-};
+    if (result.isConfirmed) {
+      await dispatch(deleteSet(id));
+    }
+  };
 
-const handleSave = async (data) => {
-  try {
-    if (editingSet) {
-      await dispatch(
-        updateSet({
-          id: editingSet.id,
-          updates: data.set,
-        })
-      );
+  const handleSave = async (data) => {
+    try {
+      if (editingSet) {
+        await dispatch(
+          updateSet({
+            id: editingSet.id,
+            updates: data.set,
+          })
+        );
 
+        MySwal.fire({
+          icon: 'success',
+          title: 'Set yeniləndi',
+          text: 'Set məlumatları dəyişdirildi',
+          timer: 1800,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'swal-popup',
+          },
+        });
+      } else {
+        await dispatch(addSet(data));
+
+        MySwal.fire({
+          icon: 'success',
+          title: 'Set yaradıldı',
+          text: 'Yeni set əlavə olundu',
+          timer: 1800,
+          showConfirmButton: false,
+          customClass: {
+            popup: 'swal-popup',
+          },
+        });
+      }
+
+      setIsModalOpen(false);
+    } catch {
       MySwal.fire({
-        icon: 'success',
-        title: 'Set yeniləndi',
-        text: 'Set məlumatları dəyişdirildi',
-        timer: 1800,
+        icon: 'error',
+        title: 'Xəta',
+        text: 'Set əməliyyatı baş tutmadı',
+        timer: 2000,
         showConfirmButton: false,
         customClass: {
-          popup: 'swal-popup',
-        },
-      });
-    } else {
-      await dispatch(addSet(data));
-
-      MySwal.fire({
-        icon: 'success',
-        title: 'Set yaradıldı',
-        text: 'Yeni set əlavə olundu',
-        timer: 1800,
-        showConfirmButton: false,
-        customClass: {
-          popup: 'swal-popup',
+          popup: 'swal-popup error',
         },
       });
     }
-
-    setIsModalOpen(false);
-  } catch {
-    MySwal.fire({
-      icon: 'error',
-      title: 'Xəta',
-      text: 'Set əməliyyatı baş tutmadı',
-      timer: 2000,
-      showConfirmButton: false,
-      customClass: {
-        popup: 'swal-popup error',
-      },
-    });
-  }
-};
+  };
 
   // -------------------------
   // SEARCH
@@ -119,17 +119,28 @@ const handleSave = async (data) => {
   );
 
   // -------------------------
-  // PAGINATION
+  // PAGINATION LOGIC
+  const totalPages = Math.ceil(filteredSets.length / setsPerPage);
   const indexOfLastSet = currentPage * setsPerPage;
   const indexOfFirstSet = indexOfLastSet - setsPerPage;
-  const currentSets = filteredSets.slice(
-    indexOfFirstSet,
-    indexOfLastSet
-  );
+  const currentSets = filteredSets.slice(indexOfFirstSet, indexOfLastSet);
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(filteredSets.length / setsPerPage); i++) {
-    pageNumbers.push(i);
+  const maxVisiblePages = 5;
+
+  let startPage = Math.max(
+    1,
+    currentPage - Math.floor(maxVisiblePages / 2)
+  );
+  let endPage = startPage + maxVisiblePages - 1;
+
+  if (endPage > totalPages) {
+    endPage = totalPages;
+    startPage = Math.max(1, endPage - maxVisiblePages + 1);
+  }
+
+  const visiblePages = [];
+  for (let i = startPage; i <= endPage; i++) {
+    visiblePages.push(i);
   }
 
   if (loading) {
@@ -149,18 +160,18 @@ const handleSave = async (data) => {
         </h2>
 
         <div className="header-actions">
-          <div className='search-bar'>
+          <div className="search-bar">
             <input
-            type="text"
-            className="search-input"
-            placeholder="Axtar"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
-          <IoSearch />
+              type="text"
+              className="search-input"
+              placeholder="Axtar"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+            <IoSearch />
           </div>
 
           <button className="btn btn-primary" onClick={handleAdd}>
@@ -219,17 +230,55 @@ const handleSave = async (data) => {
               </tbody>
             </table>
 
-            {pageNumbers.length > 1 && (
+            {/* PAGINATION */}
+            {totalPages > 1 && (
               <div className="pagination">
-                {pageNumbers.map(number => (
+                <button
+                  className="page-btn arrow"
+                  disabled={currentPage === 1}
+                  onClick={() => setCurrentPage(prev => prev - 1)}
+                >
+                  ‹
+                </button>
+
+                {startPage > 1 && (
+                  <>
+                    <button className="page-btn" onClick={() => setCurrentPage(1)}>
+                      1
+                    </button>
+                    <span className="dots">...</span>
+                  </>
+                )}
+
+                {visiblePages.map(page => (
                   <button
-                    key={number}
-                    className={`page-btn ${currentPage === number ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(number)}
+                    key={page}
+                    className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                    onClick={() => setCurrentPage(page)}
                   >
-                    {number}
+                    {page}
                   </button>
                 ))}
+
+                {endPage < totalPages && (
+                  <>
+                    <span className="dots">...</span>
+                    <button
+                      className="page-btn"
+                      onClick={() => setCurrentPage(totalPages)}
+                    >
+                      {totalPages}
+                    </button>
+                  </>
+                )}
+
+                <button
+                  className="page-btn arrow"
+                  disabled={currentPage === totalPages}
+                  onClick={() => setCurrentPage(prev => prev + 1)}
+                >
+                  ›
+                </button>
               </div>
             )}
           </>

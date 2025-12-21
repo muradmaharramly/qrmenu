@@ -43,78 +43,71 @@ const Discounts = () => {
     setIsModalOpen(true);
   };
 
- const handleDelete = async (id) => {
-  const result = await MySwal.fire({
-    title: 'Endirimi silmək istədiyinizə əminsiniz?',
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonText: 'Bəli, sil',
-    cancelButtonText: 'İmtina et',
-    customClass: {
-      popup: 'swal-popup',
-      title: 'swal-title',
-      content: 'swal-text',
-      confirmButton: 'swal-confirm-btn',
-      cancelButton: 'swal-cancel-btn',
-    },
-    reverseButtons: true,
-  });
+  const handleDelete = async (id) => {
+    const result = await MySwal.fire({
+      title: 'Endirimi silmək istədiyinizə əminsiniz?',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Bəli, sil',
+      cancelButtonText: 'İmtina et',
+      customClass: {
+        popup: 'swal-popup',
+        title: 'swal-title',
+        content: 'swal-text',
+        confirmButton: 'swal-confirm-btn',
+        cancelButton: 'swal-cancel-btn',
+      },
+      reverseButtons: true,
+    });
 
-  if (result.isConfirmed) {
-    await dispatch(deleteDiscount(id));
-  }
-};
+    if (result.isConfirmed) {
+      await dispatch(deleteDiscount(id));
+    }
+  };
 
-const handleSave = async (data) => {
-  try {
-    if (editingDiscount) {
-      await dispatch(
-        updateDiscount({
-          id: editingDiscount.id,
-          updates: data,
-        })
-      );
+  const handleSave = async (data) => {
+    try {
+      if (editingDiscount) {
+        await dispatch(
+          updateDiscount({
+            id: editingDiscount.id,
+            updates: data,
+          })
+        );
 
+        MySwal.fire({
+          icon: 'success',
+          title: 'Endirim yeniləndi',
+          text: 'Endirim məlumatları dəyişdirildi',
+          timer: 1800,
+          showConfirmButton: false,
+          customClass: { popup: 'swal-popup' },
+        });
+      } else {
+        await dispatch(addDiscount(data));
+
+        MySwal.fire({
+          icon: 'success',
+          title: 'Endirim yaradıldı',
+          text: 'Yeni endirim uğurla əlavə olundu',
+          timer: 1800,
+          showConfirmButton: false,
+          customClass: { popup: 'swal-popup' },
+        });
+      }
+
+      setIsModalOpen(false);
+    } catch {
       MySwal.fire({
-        icon: 'success',
-        title: 'Endirim yeniləndi',
-        text: 'Endirim məlumatları dəyişdirildi',
-        timer: 1800,
+        icon: 'error',
+        title: 'Xəta',
+        text: 'Endirim əməliyyatı baş tutmadı',
+        timer: 2000,
         showConfirmButton: false,
-        customClass: {
-          popup: 'swal-popup',
-        },
-      });
-    } else {
-      await dispatch(addDiscount(data));
-
-      MySwal.fire({
-        icon: 'success',
-        title: 'Endirim yaradıldı',
-        text: 'Yeni endirim uğurla əlavə olundu',
-        timer: 1800,
-        showConfirmButton: false,
-        customClass: {
-          popup: 'swal-popup',
-        },
+        customClass: { popup: 'swal-popup error' },
       });
     }
-
-    setIsModalOpen(false);
-  } catch (error) {
-    MySwal.fire({
-      icon: 'error',
-      title: 'Xəta',
-      text: 'Endirim əməliyyatı baş tutmadı',
-      timer: 2000,
-      showConfirmButton: false,
-      customClass: {
-        popup: 'swal-popup error',
-      },
-    });
-  }
-};
-
+  };
 
   const getItemName = (discount) => {
     if (discount.menu_item_id) {
@@ -126,25 +119,41 @@ const handleSave = async (data) => {
     }
   };
 
-  // -------------------------
-  // SEARCH
+  // 🔍 SEARCH
   const filteredDiscounts = discounts.filter(discount =>
     getItemName(discount).toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  // -------------------------
-  // PAGINATION
-  const indexOfLastDiscount = currentPage * discountsPerPage;
-  const indexOfFirstDiscount = indexOfLastDiscount - discountsPerPage;
-  const currentDiscounts = filteredDiscounts.slice(
-    indexOfFirstDiscount,
-    indexOfLastDiscount
-  );
+  // 📄 PAGINATION CORE
+  const totalPages = Math.ceil(filteredDiscounts.length / discountsPerPage);
+  const indexOfLast = currentPage * discountsPerPage;
+  const indexOfFirst = indexOfLast - discountsPerPage;
+  const currentDiscounts = filteredDiscounts.slice(indexOfFirst, indexOfLast);
 
-  const pageNumbers = [];
-  for (let i = 1; i <= Math.ceil(filteredDiscounts.length / discountsPerPage); i++) {
-    pageNumbers.push(i);
-  }
+  const visiblePages = 5;
+
+  const getPageNumbers = () => {
+    const pages = [];
+
+    for (let i = 1; i <= Math.min(visiblePages, totalPages); i++) {
+      pages.push(i);
+    }
+
+    if (totalPages > visiblePages) {
+      pages.push('dots');
+      pages.push(totalPages);
+    }
+
+    return pages;
+  };
+
+  const handlePrev = () => {
+    if (currentPage > 1) setCurrentPage(p => p - 1);
+  };
+
+  const handleNext = () => {
+    if (currentPage < totalPages) setCurrentPage(p => p + 1);
+  };
 
   if (loading) {
     return (
@@ -163,18 +172,18 @@ const handleSave = async (data) => {
         </h2>
 
         <div className="header-actions">
-          <div className='search-bar'>
+          <div className="search-bar">
             <input
-            type="text"
-            className="search-input"
-            placeholder="Axtar"
-            value={searchTerm}
-            onChange={(e) => {
-              setSearchTerm(e.target.value);
-              setCurrentPage(1);
-            }}
-          />
-          <IoSearch />
+              type="text"
+              className="search-input"
+              placeholder="Axtar"
+              value={searchTerm}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
+            />
+            <IoSearch />
           </div>
 
           <button className="btn btn-primary" onClick={handleAdd}>
@@ -235,17 +244,38 @@ const handleSave = async (data) => {
               </tbody>
             </table>
 
-            {pageNumbers.length > 1 && (
+            {/* PAGINATION */}
+            {totalPages > 1 && (
               <div className="pagination">
-                {pageNumbers.map(number => (
-                  <button
-                    key={number}
-                    className={`page-btn ${currentPage === number ? 'active' : ''}`}
-                    onClick={() => setCurrentPage(number)}
-                  >
-                    {number}
-                  </button>
-                ))}
+                <button
+                  className="page-btn arrow"
+                  onClick={handlePrev}
+                  disabled={currentPage === 1}
+                >
+                  ←
+                </button>
+
+                {getPageNumbers().map((page, index) =>
+                  page === 'dots' ? (
+                    <span key={index} className="pagination-dots">...</span>
+                  ) : (
+                    <button
+                      key={page}
+                      className={`page-btn ${currentPage === page ? 'active' : ''}`}
+                      onClick={() => setCurrentPage(page)}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
+
+                <button
+                  className="page-btn arrow"
+                  onClick={handleNext}
+                  disabled={currentPage === totalPages}
+                >
+                  →
+                </button>
               </div>
             )}
           </>

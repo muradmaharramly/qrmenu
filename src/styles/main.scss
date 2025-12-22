@@ -1288,45 +1288,6 @@ svg{
 
 
 
-
-
-// Responsive
-@include responsive(tablet) {
-  .set-items-list {
-    li {
-      font-size: $font-xs;
-      padding: 4px $space-xs;
-
-      .item-quantity {
-        font-size: 10px;
-        padding: 2px 6px;
-        min-width: 24px;
-      }
-    }
-  }
-}
-
-@include responsive(mobile) {
-  .set-items-list {
-    max-height: 120px;
-
-    li {
-      font-size: 11px;
-      padding: 4px $space-xs;
-
-      .item-quantity {
-        font-size: 9px;
-        padding: 1px 5px;
-        min-width: 20px;
-      }
-    }
-  }
-
-  .menu-item-card .item-info ul.set-items-list {
-    max-height: 100px;
-  }
-}
-
 .set-items-list:empty::after {
   content: 'Məhsul əlavə edilməyib';
   display: block;

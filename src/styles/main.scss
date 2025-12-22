@@ -1254,17 +1254,68 @@ svg{
   }
 
   .menu-header {
-    text-align: center;
-    margin-bottom: $space-xxl;
+  position: relative;
+  text-align: center;
+  padding: 48px 16px 32px;
+}
 
-    h1 {
-      font-size: $font-xxl;
-      margin-bottom: $space-sm;
-      background: linear-gradient(
+/* TOP ICONS */
+.menu-top-actions {
+  @include flex-center;
+  gap: 12px;
+  margin-top: - $space-xxl;
+
+  .top-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, $box-dark 0%, $box-hover-light 50%, $box-light 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: $white;
+    font-size: 20px;
+    box-shadow: $shadow-heavy;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: linear-gradient(135deg, $primary-dark 0%, $primary 50%, $primary 100%);
+      transform: translateY(-2px);
+      box-shadow: $shadow-medium;
+    }
+  }
+}
+
+/* LOGO */
+.menu-logo {
+  margin-top: $space-sm;
+  margin-bottom: 12px;
+  margin-left: auto;
+  margin-right: auto;
+  border-radius: 50%;
+  -webkit-border-radius: 50%;
+  -moz-border-radius: 50%;
+  -ms-border-radius: 50%;
+  -o-border-radius: 50%;
+  width: 80px;
+  height: 80px;
+  overflow: hidden;
+  img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+}
+
+/* TITLE */
+.menu-header h1 {
+  font-size: $font-xl;
+  font-weight: 700;
+  background: linear-gradient(
     135deg,
     $primary-dark 0%,
     $primary 50%,
-    $primary 100%
+    $primary-light 100%
   );
 
   -webkit-background-clip: text;
@@ -1272,13 +1323,15 @@ svg{
 
   -webkit-text-fill-color: transparent;
   color: transparent;
-    }
+  
+  
+}
 
-    p {
-      color: $white-2nd;
-      font-size: $font-md;
-    }
-  }
+.menu-header p {
+  font-size: $font-sm;
+  color: $white-2nd;
+}
+
 
   .category-section {
     margin-bottom: $space-xxl;

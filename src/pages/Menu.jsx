@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { QrCode as QrIcon } from 'lucide-react';
+import { IoLocationSharp, IoCall } from 'react-icons/io5';
+import NardiLogo from '../images/logo-nardi.jpg';
 
 const Menu = () => {
   const { qrCode } = useParams();
@@ -113,8 +115,33 @@ const Menu = () => {
   return (
     <div className="menu-container">
       <div className="menu-header">
-        <h1>Bizim Menyu</h1>
-        <p>Ən dadlı yeməklər burada!</p>
+        {/* TOP ICONS */}
+        <div className="menu-top-actions">
+          <a
+            href="https://www.google.com/maps?q=40.377163,49.846409"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="top-icon"
+          >
+            <IoLocationSharp />
+          </a>
+
+
+          {/*
+<a href="tel:+994501234567" className="top-icon" target="_blank">
+  <IoCall />
+</a>
+*/}
+
+        </div>
+
+        {/* LOGO */}
+        <div className="menu-logo">
+          <img src={NardiLogo} alt="Nardi Çay Evi" />
+        </div>
+
+        {/* TITLE */}
+        <h1>NARDİ Çay Evi</h1>
       </div>
 
       {/* FILTER BUTTONS */}

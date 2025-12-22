@@ -21,6 +21,11 @@ const Menu = () => {
     return () => clearInterval(interval);
   }, [qrCode]);
 
+  const shouldShowItem = (item) => {
+    const itemName = item.name?.trim().toLowerCase();
+    return itemName !== 'çay';
+  };
+
   const fetchMenuData = async () => {
     try {
       const { error: qrError } = await supabase
@@ -45,6 +50,7 @@ const Menu = () => {
           *,
           set_items (
             id,
+            quantity,
             menu_items (*)
           )
         `)
@@ -55,12 +61,14 @@ const Menu = () => {
         .select('*')
         .eq('is_active', true);
 
-      setMenuItems(itemsData || []);
+      const filteredItems = (itemsData || []).filter(shouldShowItem);
+
+      setMenuItems(filteredItems);
       setSets(setsData || []);
       setDiscounts(discountsData || []);
 
       const uniqueCategories = [
-        ...new Set(itemsData?.map(i => i.category).filter(Boolean)),
+        ...new Set(filteredItems?.map(i => i.category).filter(Boolean)),
       ];
       setCategories(uniqueCategories);
 
@@ -126,13 +134,11 @@ const Menu = () => {
             <IoLocationSharp />
           </a>
 
-
           {/*
-<a href="tel:+994501234567" className="top-icon" target="_blank">
-  <IoCall />
-</a>
-*/}
-
+          <a href="tel:+994501234567" className="top-icon" target="_blank">
+            <IoCall />
+          </a>
+          */}
         </div>
 
         {/* LOGO */}
@@ -189,9 +195,14 @@ const Menu = () => {
                   <div className="item-info">
                     <h3>{set.name}</h3>
                     <p>{set.description}</p>
-                    <ul>
+                    <ul className="set-items-list">
                       {set.set_items?.map(si => (
-                        <li key={si.id}>{si.menu_items.name}</li>
+                        <li key={si.id}>
+                          {si.menu_items.name}
+                          {si.quantity > 1 && (
+                            <span className="item-quantity"> x{si.quantity}</span>
+                          )}
+                        </li>
                       ))}
                     </ul>
                   </div>

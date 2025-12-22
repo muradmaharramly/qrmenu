@@ -1252,6 +1252,90 @@ svg{
   ul{
     list-style: none;
   }
+  .set-items-list {
+  list-style: none;
+  padding: 0;
+  margin: $space-sm 0;
+  display: flex;
+  flex-direction: column;
+  gap: $space-xs;
+  background-color: transparent;
+  border-radius: none;
+  -webkit-border-radius: none;
+  -moz-border-radius: none;
+  -ms-border-radius: none;
+  -o-border-radius: none;
+  li{
+    display: flex;
+    align-items: center;
+    justify-content: left;
+    color: $soft-white;
+    font-size: $font-md;
+    transition: all 0.2s ease;
+
+   
+
+    .item-quantity {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: $white;
+      font-size: $font-md;
+      margin-left: $space-xs;
+    }
+  }
+}
+
+
+
+
+
+// Responsive
+@include responsive(tablet) {
+  .set-items-list {
+    li {
+      font-size: $font-xs;
+      padding: 4px $space-xs;
+
+      .item-quantity {
+        font-size: 10px;
+        padding: 2px 6px;
+        min-width: 24px;
+      }
+    }
+  }
+}
+
+@include responsive(mobile) {
+  .set-items-list {
+    max-height: 120px;
+
+    li {
+      font-size: 11px;
+      padding: 4px $space-xs;
+
+      .item-quantity {
+        font-size: 9px;
+        padding: 1px 5px;
+        min-width: 20px;
+      }
+    }
+  }
+
+  .menu-item-card .item-info ul.set-items-list {
+    max-height: 100px;
+  }
+}
+
+.set-items-list:empty::after {
+  content: 'Məhsul əlavə edilməyib';
+  display: block;
+  padding: $space-md;
+  text-align: center;
+  color: $white-2nd;
+  font-size: $font-xs;
+  font-style: italic;
+}
 
   .menu-header {
   position: relative;
@@ -1279,7 +1363,7 @@ svg{
     transition: all 0.2s ease;
 
     &:hover {
-      background: linear-gradient(135deg, $primary-dark 0%, $primary 50%, $primary 100%);
+      background: linear-gradient(135deg, $accent-dark 0%, $primary 50%, $accent 100%);
       transform: translateY(-2px);
       box-shadow: $shadow-medium;
     }

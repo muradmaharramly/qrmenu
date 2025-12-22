@@ -4,6 +4,8 @@ import QRCode from 'qrcode';
 import { Download, RefreshCw, QrCode as QrIcon } from 'lucide-react';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import { Link } from 'react-router-dom';
+import { RxExternalLink } from 'react-icons/rx';
 
 const MySwal = withReactContent(Swal);
 
@@ -146,7 +148,7 @@ const QRManager = () => {
             <div className="qr-info">
               <h3>Aktiv QR Kod</h3>
               <p><strong>Kod:</strong> {qrData?.code}</p>
-              <p><strong>URL:</strong> {qrData?.menu_url}</p>
+              <p><strong>URL:</strong><Link to={qrData?.menu_url}>{qrData?.menu_url} <RxExternalLink /></Link></p>
               <p><strong>Yaradılma tarixi:</strong> {new Date(qrData?.created_at).toLocaleString('az-AZ')}</p>
               
               <button className="btn btn-success" onClick={downloadQR}>

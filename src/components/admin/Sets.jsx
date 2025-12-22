@@ -7,12 +7,14 @@ import {
   updateSet,
   deleteSet
 } from '../../features/menu/menuSlice';
-import { Plus, Edit2, Trash2, Package } from 'lucide-react';
+import { Plus, Edit2, Trash2, Package, Eye, X } from 'lucide-react';
 import SetModal from './SetModal';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { IoSearch } from 'react-icons/io5';
 import { LuImageOff } from 'react-icons/lu';
+import ReactDOMServer from 'react-dom/server';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 
 const Sets = () => {
   const dispatch = useDispatch();
@@ -23,6 +25,7 @@ const Sets = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [setsPerPage] = useState(5);
   const [searchTerm, setSearchTerm] = useState('');
+  const [viewingSet, setViewingSet] = useState(null);
 
   const MySwal = withReactContent(Swal);
 
@@ -63,6 +66,68 @@ const Sets = () => {
     }
   };
 
+  const handleViewDetailsWithIcon = (set) => {
+  const itemsHtml = set.set_items?.length > 0 
+    ? set.set_items.map(si => {
+        const item = items.find(i => i.id === si.menu_item_id);
+        return `
+          <div class="set-item">
+            <span class="item-name">
+              ${item?.name || 'Məhsul tapılmadı'}
+            </span>
+            <span class="item-quantity">
+              ${si.quantity || 1}x
+            </span>
+          </div>
+        `;
+      }).join('')
+    : '<p class="items-empty">Məhsul yoxdur</p>';
+
+  MySwal.fire({
+    title: set.name,
+    html: `
+      <div class="set-details-content">
+        ${set.image_url ? `
+          <img 
+            src="${set.image_url}" 
+            alt="${set.name}" 
+            class="set-image"
+          />
+        ` : ''}
+        
+        ${set.description ? `
+          <p class="set-description">
+            ${set.description}
+          </p>
+        ` : ''}
+        
+        <div class="set-items-container">
+          <h4 class="items-title">Məhsullar</h4>
+          <div class="items-list">
+            ${itemsHtml}
+          </div>
+        </div>
+        
+        <div class="set-total-price">
+          <span class="price-label">Toplam Qiymət:</span>
+          <span class="price-value">${set.total_price} AZN</span>
+        </div>
+      </div>
+    `,
+    confirmButtonText: `
+      <div style="display: flex; align-items: center; gap: 8px;">
+        ${ReactDOMServer.renderToString(<X size={18} />)}
+      </div>
+    `,
+    customClass: {
+      popup: 'swal-set-details',
+      confirmButton: 'swal-confirm-btn',
+    },
+    width: '600px',
+  });
+};
+
+
   const handleSave = async (data) => {
     try {
       if (editingSet) {
@@ -70,6 +135,7 @@ const Sets = () => {
           updateSet({
             id: editingSet.id,
             updates: data.set,
+            items: data.items, // quantity ilə
           })
         );
 
@@ -144,6 +210,11 @@ const Sets = () => {
     visiblePages.push(i);
   }
 
+  // Toplam məhsul sayını hesabla (quantity ilə)
+  const getTotalItemsCount = (set) => {
+    return set.set_items?.reduce((total, si) => total + (si.quantity || 1), 0) || 0;
+  };
+
   if (loading) {
     return (
       <div className="loading">
@@ -197,6 +268,7 @@ const Sets = () => {
                   <th>Şəkil</th>
                   <th>Ad</th>
                   <th>Məhsullar</th>
+                  <th>Toplam Say</th>
                   <th>Qiymət</th>
                   <th>Status</th>
                   <th>Əməliyyatlar</th>
@@ -214,9 +286,30 @@ const Sets = () => {
                         )}
                       </div>
                     </td>
-                    <td>{set.name}</td>
-                    <td>{set.set_items?.length || 0} məhsul</td>
-                    <td>{set.total_price} AZN</td>
+                    <td>
+                      <div className="item-name-cell">
+                        {set.name}
+                        {set.description && (
+                          <small className="item-description">
+                            {set.description.substring(0, 50)}
+                            {set.description.length > 50 ? '...' : ''}
+                          </small>
+                        )}
+                      </div>
+                    </td>
+                    <td>
+                      <span className="item-count">
+                        {set.set_items?.length || 0} növ
+                      </span>
+                    </td>
+                    <td>
+                      <span className="total-quantity">
+                        {getTotalItemsCount(set)} ədəd
+                      </span>
+                    </td>
+                    <td>
+                      <span className="price">{set.total_price} AZN</span>
+                    </td>
                     <td>
                       <span className={`badge ${set.is_available ? 'badge-success' : 'badge-danger'}`}>
                         {set.is_available ? 'Aktiv' : 'Deaktiv'}
@@ -224,14 +317,23 @@ const Sets = () => {
                     </td>
                     <td className="actions">
                       <button
-                        className="btn btn-sm btn-secondary btn-icon"
+                        className="btn btn-sm btn-info btn-icon"
+                        onClick={() => handleViewDetailsWithIcon(set)}
+                        title="Təfərrüatlar"
+                      >
+                        <Eye size={16} />
+                      </button>
+                      <button
+                        className="btn btn-sm btn-edit btn-icon"
                         onClick={() => handleEdit(set)}
+                        title="Redaktə et"
                       >
                         <Edit2 size={16} />
                       </button>
                       <button
                         className="btn btn-sm btn-danger btn-icon"
                         onClick={() => handleDelete(set.id)}
+                        title="Sil"
                       >
                         <Trash2 size={16} />
                       </button>
@@ -249,7 +351,7 @@ const Sets = () => {
                   disabled={currentPage === 1}
                   onClick={() => setCurrentPage(prev => prev - 1)}
                 >
-                  ‹
+                  <IoIosArrowBack />
                 </button>
 
                 {startPage > 1 && (
@@ -288,7 +390,7 @@ const Sets = () => {
                   disabled={currentPage === totalPages}
                   onClick={() => setCurrentPage(prev => prev + 1)}
                 >
-                  ›
+                  <IoIosArrowForward />
                 </button>
               </div>
             )}

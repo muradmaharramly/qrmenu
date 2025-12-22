@@ -12,6 +12,7 @@ import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { IoSearch } from 'react-icons/io5';
 import { LuImageOff } from 'react-icons/lu';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 
 const MenuItems = () => {
     const dispatch = useDispatch();
@@ -20,7 +21,7 @@ const MenuItems = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingItem, setEditingItem] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
-    const [itemsPerPage] = useState(6);
+    const [itemsPerPage] = useState(5);
     const [searchTerm, setSearchTerm] = useState('');
 
     const MySwal = withReactContent(Swal);
@@ -219,7 +220,7 @@ const MenuItems = () => {
 
                                         <td>{item.name}</td>
                                         <td>{item.category}</td>
-                                        <td>{item.price} AZN</td>
+                                        <td className="price">{item.price} AZN</td>
                                         <td>
                                             <span className={`badge ${item.is_available ? 'badge-success' : 'badge-danger'}`}>
                                                 {item.is_available ? 'Aktiv' : 'Deaktiv'}
@@ -227,7 +228,7 @@ const MenuItems = () => {
                                         </td>
                                         <td className="actions">
                                             <button
-                                                className="btn btn-sm btn-secondary btn-icon"
+                                                className="btn btn-sm btn-edit btn-icon"
                                                 onClick={() => handleEdit(item)}
                                             >
                                                 <Edit2 size={16} />
@@ -252,7 +253,7 @@ const MenuItems = () => {
                                     onClick={handlePrev}
                                     disabled={currentPage === 1}
                                 >
-                                    ←
+                                    <IoIosArrowBack />
                                 </button>
 
                                 {getPageNumbers().map((page, index) =>
@@ -274,7 +275,7 @@ const MenuItems = () => {
                                     onClick={handleNext}
                                     disabled={currentPage === totalPages}
                                 >
-                                    →
+                                    <IoIosArrowForward />
                                 </button>
                             </div>
                         )}

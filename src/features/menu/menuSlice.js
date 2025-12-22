@@ -2,17 +2,17 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 import { supabase } from '../../services/supabase'
 
 // ============================================
-// ASYNC THUNKS - DÜZƏLDILMIŞ
+// ASYNC THUNKS
 // ============================================
 
-// Fetch all menu items (columns parametri silindi)
+// Fetch all menu items
 export const fetchMenuItems = createAsyncThunk(
   'menu/fetchItems',
   async (_, { rejectWithValue }) => {
     try {
       const { data, error } = await supabase
         .from('menu_items')
-        .select('*')  // columns parametrini sildik
+        .select('*')
         .order('created_at', { ascending: false })
       
       if (error) throw error
@@ -23,7 +23,7 @@ export const fetchMenuItems = createAsyncThunk(
   }
 )
 
-// Fetch sets
+// Fetch sets (quantity ilə)
 export const fetchSets = createAsyncThunk(
   'menu/fetchSets',
   async (_, { rejectWithValue }) => {
@@ -34,6 +34,7 @@ export const fetchSets = createAsyncThunk(
           *,
           set_items (
             id,
+            quantity,
             menu_item_id,
             menu_items (*)
           )
@@ -48,7 +49,7 @@ export const fetchSets = createAsyncThunk(
   }
 )
 
-// Add menu item (columns parametri silindi)
+// Add menu item
 export const addMenuItem = createAsyncThunk(
   'menu/addItem',
   async (item, { rejectWithValue }) => {
@@ -56,7 +57,7 @@ export const addMenuItem = createAsyncThunk(
       const { data, error } = await supabase
         .from('menu_items')
         .insert([item])
-        .select()  // sadəcə select
+        .select()
       
       if (error) throw error
       return data[0]
@@ -103,12 +104,12 @@ export const deleteMenuItem = createAsyncThunk(
   }
 )
 
-// Add set
+// Add set (quantity ilə)
 export const addSet = createAsyncThunk(
   'menu/addSet',
   async ({ set, items }, { rejectWithValue }) => {
     try {
-      // Insert set
+      // 1. Set-i əlavə et
       const { data: setData, error: setError } = await supabase
         .from('sets')
         .insert([set])
@@ -116,11 +117,14 @@ export const addSet = createAsyncThunk(
       
       if (setError) throw setError
 
-      // Insert set items
+      const setId = setData[0].id
+
+      // 2. Set items əlavə et (quantity ilə)
       if (items && items.length > 0) {
-        const setItems = items.map(itemId => ({
-          set_id: setData[0].id,
-          menu_item_id: itemId
+        const setItems = items.map(item => ({
+          set_id: setId,
+          menu_item_id: item.id,
+          quantity: item.quantity || 1
         }))
 
         const { error: itemsError } = await supabase
@@ -130,26 +134,83 @@ export const addSet = createAsyncThunk(
         if (itemsError) throw itemsError
       }
 
-      return setData[0]
+      // 3. Tam məlumatı geri qaytar
+      const { data: fullSet, error: fetchError } = await supabase
+        .from('sets')
+        .select(`
+          *,
+          set_items (
+            id,
+            quantity,
+            menu_item_id,
+            menu_items (*)
+          )
+        `)
+        .eq('id', setId)
+        .single()
+
+      if (fetchError) throw fetchError
+      return fullSet
     } catch (error) {
       return rejectWithValue(error.message)
     }
   }
 )
 
-// Update set
+// Update set (quantity ilə)
 export const updateSet = createAsyncThunk(
   'menu/updateSet',
-  async ({ id, updates }, { rejectWithValue }) => {
+  async ({ id, updates, items }, { rejectWithValue }) => {
     try {
-      const { data, error } = await supabase
+      // 1. Set məlumatlarını yenilə
+      const { error: setError } = await supabase
         .from('sets')
         .update(updates)
         .eq('id', id)
-        .select()
       
-      if (error) throw error
-      return data[0]
+      if (setError) throw setError
+
+      // 2. Əgər items göndərilibsə, set_items-ləri yenilə
+      if (items && items.length > 0) {
+        // Köhnə set_items-ləri sil
+        const { error: deleteError } = await supabase
+          .from('set_items')
+          .delete()
+          .eq('set_id', id)
+
+        if (deleteError) throw deleteError
+
+        // Yeni set_items əlavə et (quantity ilə)
+        const setItems = items.map(item => ({
+          set_id: id,
+          menu_item_id: item.id,
+          quantity: item.quantity || 1
+        }))
+
+        const { error: itemsError } = await supabase
+          .from('set_items')
+          .insert(setItems)
+
+        if (itemsError) throw itemsError
+      }
+
+      // 3. Yenilənmiş məlumatı geri qaytar
+      const { data: updatedSet, error: fetchError } = await supabase
+        .from('sets')
+        .select(`
+          *,
+          set_items (
+            id,
+            quantity,
+            menu_item_id,
+            menu_items (*)
+          )
+        `)
+        .eq('id', id)
+        .single()
+
+      if (fetchError) throw fetchError
+      return updatedSet
     } catch (error) {
       return rejectWithValue(error.message)
     }
@@ -161,6 +222,25 @@ export const deleteSet = createAsyncThunk(
   'menu/deleteSet',
   async (id, { rejectWithValue }) => {
     try {
+      // Əvvəlcə şəkili sil (əgər varsa)
+      const { data: set } = await supabase
+        .from('sets')
+        .select('image_url')
+        .eq('id', id)
+        .single()
+
+      if (set?.image_url) {
+        try {
+          const imagePath = set.image_url.split('/').slice(-2).join('/')
+          await supabase.storage
+            .from('menu-images')
+            .remove([imagePath])
+        } catch (err) {
+          console.warn('Şəkil silinərkən xəta:', err)
+        }
+      }
+
+      // Set və set_items-ləri sil (CASCADE ilə avtomatik)
       const { error } = await supabase
         .from('sets')
         .delete()

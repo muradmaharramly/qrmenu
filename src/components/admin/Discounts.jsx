@@ -12,6 +12,8 @@ import DiscountModal from './DiscountModal';
 import withReactContent from 'sweetalert2-react-content';
 import Swal from 'sweetalert2';
 import { IoSearch } from 'react-icons/io5';
+import { LuImageOff } from 'react-icons/lu';
+import { IoIosArrowBack, IoIosArrowForward } from 'react-icons/io';
 
 const Discounts = () => {
   const dispatch = useDispatch();
@@ -26,6 +28,7 @@ const Discounts = () => {
   const [searchTerm, setSearchTerm] = useState('');
 
   const MySwal = withReactContent(Swal);
+
 
   useEffect(() => {
     dispatch(fetchDiscounts());
@@ -119,6 +122,26 @@ const Discounts = () => {
     }
   };
 
+  const getDiscountImage = (discount) => {
+    if (discount.menu_item_id) {
+      const item = items.find(
+        i => String(i.id) === String(discount.menu_item_id)
+      );
+      return item?.image_url || null;
+    }
+
+    if (discount.set_id) {
+      const set = sets.find(
+        s => String(s.id) === String(discount.set_id)
+      );
+      return set?.image_url || null;
+    }
+
+    return null;
+  };
+
+
+
   // 🔍 SEARCH
   const filteredDiscounts = discounts.filter(discount =>
     getItemName(discount).toLowerCase().includes(searchTerm.toLowerCase())
@@ -205,6 +228,7 @@ const Discounts = () => {
             <table className="data-table">
               <thead>
                 <tr>
+                  <th>Şəkil</th>
                   <th>Məhsul / Set</th>
                   <th>Endirim %</th>
                   <th>Başlama</th>
@@ -216,6 +240,20 @@ const Discounts = () => {
               <tbody>
                 {currentDiscounts.map(discount => (
                   <tr key={discount.id}>
+                    <td>
+                      <div className="item-image">
+                        {(() => {
+                          const img = getDiscountImage(discount);
+                          return img ? (
+                            <img src={img} alt={getItemName(discount)} />
+                          ) : (
+                            <LuImageOff size={28} />
+                          );
+                        })()}
+                      </div>
+                    </td>
+
+
                     <td>{getItemName(discount)}</td>
                     <td>{discount.discount_percentage}%</td>
                     <td>{discount.start_time}</td>
@@ -227,7 +265,7 @@ const Discounts = () => {
                     </td>
                     <td className="actions">
                       <button
-                        className="btn btn-sm btn-secondary btn-icon"
+                        className="btn btn-sm btn-edit btn-icon"
                         onClick={() => handleEdit(discount)}
                       >
                         <Edit2 size={16} />
@@ -252,7 +290,7 @@ const Discounts = () => {
                   onClick={handlePrev}
                   disabled={currentPage === 1}
                 >
-                  ←
+                  <IoIosArrowBack />
                 </button>
 
                 {getPageNumbers().map((page, index) =>
@@ -274,7 +312,7 @@ const Discounts = () => {
                   onClick={handleNext}
                   disabled={currentPage === totalPages}
                 >
-                  →
+                  <IoIosArrowForward />
                 </button>
               </div>
             )}

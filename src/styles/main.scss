@@ -792,7 +792,11 @@ svg{
   width: 100%;
   border-collapse: collapse;
   margin-top: $space-md;
-
+  .price {
+    color: $primary;
+    font-weight: 600;
+    font-size: $font-md;
+  }
   thead {
     background: $box-light;
 
@@ -810,8 +814,10 @@ svg{
     tr {
       border-bottom: 1px solid $border-light;
       transition: background 0.2s;
+      
       &:hover {
         background: $box-light;
+
       }
 
       td {
@@ -822,27 +828,104 @@ svg{
         &.actions {
           @include flex-center;
           gap: $space-sm;
-          margin-top: $space-md;
+          margin-top: $space-xs;
+          flex-wrap: wrap;
         }
       }
     }
+
     .item-image {
       @include flex-center;
-    width:60px;
-    height: 60px;
-    object-fit: cover;
-    overflow: hidden;
-    border-radius: $radius-sm;
-    margin-bottom: $space-md;
-    -webkit-border-radius: $radius-sm;
-    -moz-border-radius: $radius-sm;
-    -ms-border-radius: $radius-sm;
-    -o-border-radius: $radius-sm;
-    img{
-      width: 100%;
-      height: 100%;
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      overflow: hidden;
+      border-radius: $radius-sm;
+      margin: 0;
+      -webkit-border-radius: $radius-sm;
+      -moz-border-radius: $radius-sm;
+      -ms-border-radius: $radius-sm;
+      -o-border-radius: $radius-sm;
+
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+
+      svg {
+        color: $white-2nd;
+      }
     }
   }
+
+
+  .btn-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px;
+    min-width: auto;
+    transition: all 0.2s ease;
+
+    svg {
+      margin: 0;
+    }
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .btn-info {
+    background: transparent;
+    color: $warning;
+    border: 1px solid $warning;
+
+    &:hover {
+      background: $warning;
+      box-shadow: 0 2px 4px rgba($warning, 0.4);
+      color: $primary-dark;
+    }
+  }
+  .btn-edit {
+    background: transparent;
+    color: $white-2nd;
+    border: 1px solid $white-2nd;
+
+    &:hover {
+      background: $white-2nd;
+      box-shadow: 0 2px 4px rgba($warning, 0.4);
+      color: $primary-dark;
+    }
+  }
+
+  .total-quantity.loading {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.6;
+    }
+  }
+
+  // ========================================
+  // RESPONSIVE
+  // ========================================
+
+  @include responsive(desktop) {
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
   }
 
   @include responsive(tablet) {
@@ -852,11 +935,56 @@ svg{
     tbody td {
       padding: $space-sm;
     }
+
+    th:nth-child(3),
+    td:nth-child(3),
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
+
+    .actions {
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .btn-icon {
+      padding: 6px;
+      width: 100%;
+    }
+
+    .item-name-cell .item-description {
+      display: none;
+    }
   }
 
   @include responsive(mobile) {
     display: block;
     overflow-x: auto;
+
+    // Mobil-də şəkil sütununu gizlət
+    th:nth-child(1),
+    td:nth-child(1) {
+      display: none;
+    }
+
+    // Digər sütunlar
+    th:nth-child(3),
+    td:nth-child(3),
+    th:nth-child(4),
+    td:nth-child(4) {
+      display: none;
+    }
+
+    tbody td {
+      padding: $space-sm;
+    }
+
+    .item-count,
+    .total-quantity {
+      font-size: 11px;
+      padding: 3px 8px;
+    }
   }
 }
 
@@ -1228,14 +1356,15 @@ svg{
 
   .item-footer {
     @include flex-between;
+    bottom: $space-md;
+      right: $space-md;
+      position: absolute;
 
     .price {
       font-size: $font-lg;
       font-weight: 700;
       color: $primary;
-      position: absolute;
-      bottom: $space-md;
-      right: $space-md;
+      
 
       &.original-price {
         text-decoration: line-through;
@@ -1442,112 +1571,229 @@ svg{
     button {
       margin-top: $space-lg;
     }
+    a{
+      color: $white-2nd;
+      margin-left: $space-xs;
+      text-decoration: underline;
+    }
   }
 }
 
-.checkbox-list {
-  max-height: 300px;
-  overflow-y: auto;
-  border: 1px solid $border-light;
-  border-radius: $radius-md;
+// SetModal - Məhsul Sayı Stilləri
+
+.checkbox-item-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
   padding: $space-sm;
-  &::-webkit-scrollbar {
-    width: 14px;
-    height: 14px;
-  }
-
-  &::-webkit-scrollbar-track {
-    background: $black;
-    border-radius: $radius-md;
-  }
-
-  &::-webkit-scrollbar-thumb {
-    background: linear-gradient(135deg, $accent 0%, $primary 50%, $accent-light 100%);
-    border-radius: $radius-md;
-    border: 3px solid $black;
-    
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-
-    &:hover {
-      background: linear-gradient(135deg, $accent-light 0%, $primary-light 50%, $primary 100%);
-      transform: scale(1.05);
-     
-    }
-
-    &:active {
-      background: $accent-dark;
-      transform: scale(0.95);
-    }
-  }
-  .custom-checkbox {
-    margin-bottom: 0 !important;
-    margin-right: 0 !important;
-  appearance: none;
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  width: 10px;
-  height: 20px;
   border-radius: $radius-sm;
+  transition: all 0.2s ease;
   background: $box-dark;
+  margin-bottom: $space-xs;
   border: 1px solid $border-dark;
-  cursor: pointer;
-  position: relative;
-  transition: all 0.25s ease;
-  box-shadow: $shadow-soft;
 
   &:hover {
     background: $box-hover-dark;
-    border-color: $primary-light;
-  }
-
-  &:checked {
-    background: $primary;
-    border-color: $primary;
-  }
-
-  &:checked::after {
-    content: '';
-    position: absolute;
-    top: 6px;
-    left: 12px;
-    width: 5px;
-    height: 9px;
-    border-right: 2px solid $white;
-    border-bottom: 2px solid $white;
-    transform: rotate(45deg);
-  }
-
-  &:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba($primary, 0.35);
-  }
-
-  &:disabled {
-    cursor: not-allowed;
-    opacity: 0.5;
+    border-color: $border-light;
   }
 }
 
-  .checkbox-item {
-    display: flex;
-    align-items: center;
-    gap: $space-sm;
-    padding: $space-sm;
+.checkbox-item {
+  display: flex;
+  align-items: center;
+  gap: $space-sm;
+  cursor: pointer;
+  flex: 1;
+  margin: 0;
+
+  .custom-checkbox {
     cursor: pointer;
-    transition: background 0.2s;
-    border-radius: $radius-md;
-    
-    -webkit-border-radius: $radius-md;
-    -moz-border-radius: $radius-md;
-    -ms-border-radius: $radius-md;
-    -o-border-radius: $radius-md;
-    &:hover {
-      background: $box-light;
-    }
-
-
-    
   }
+
+  .item-name {
+    color: $soft-white;
+    font-size: $font-sm;
+  }
+}
+
+// Quantity Controls
+.quantity-controls {
+  width: 150px;
+  display: flex;
+  justify-content: right;
+  align-items: center;
+  gap: $space-xs;
+  background: $soft-black;
+  border-radius: $radius-sm;
+  padding: 4px;
+  border: 1px solid $border-dark;
+}
+
+.quantity-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 28px;
+  border: none;
+  border-radius: 6px;
+  background: $primary;
+  color: $white;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+
+  &:hover:not(:disabled) {
+    background: $primary-light;
+    transform: scale(1.05);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.95);
+  }
+
+  &:disabled {
+    background: $black-2nd;
+    color: $white-2nd;
+    cursor: not-allowed;
+    opacity: 0.5;
+  }
+
+  svg {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+.quantity-input {
+  width: 60px !important;
+  height: 28px;
+  text-align: center;
+  border: 1px solid $border-dark;
+  border-radius: 6px;
+  background: $box-dark;
+  color: $white;
+  font-size: $font-sm;
+  font-weight: 600;
+  padding: 0 $space-xs;
+  transition: all 0.2s ease;
+
+  &:focus {
+    outline: none;
+    border-color: $primary;
+    background: $main-dark;
+  }
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  -moz-appearance: textfield;
+}
+
+// Checkbox List Container
+.checkbox-list {
+  max-height: 300px;
+  overflow-y: auto;
+  padding: $space-xs;
+  background: $main-dark;
+  border-radius: $radius-sm;
+  border: 1px solid $border-dark;
+
+  // Custom scrollbar
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $soft-black;
+    border-radius: $radius-sm;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $primary;
+    border-radius: $radius-sm;
+
+    &:hover {
+      background: $primary-light;
+    }
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: $primary $soft-black;
+}
+
+// Animation
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.quantity-controls {
+  animation: slideIn 0.2s ease;
+}
+
+// Responsive
+@media (max-width: $tablet) {
+  .checkbox-item-container {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: $space-sm;
+  }
+
+  .quantity-controls {
+    align-self: flex-end;
+  }
+}
+
+@media (max-width: $mobile) {
+  .quantity-btn {
+    width: 32px;
+    height: 32px;
+  }
+
+  .quantity-input {
+    width: 60px;
+    height: 32px;
+  }
+
+  .checkbox-item-container {
+    padding: $space-sm;
+  }
+}
+
+// Hover effect for better UX
+.checkbox-item-container {
+  &:has(.custom-checkbox:checked) {
+    background: rgba($primary, 0.1);
+    border-color: $primary;
+
+    .checkbox-item .item-name {
+      color: $white;
+      font-weight: 500;
+    }
+  }
+}
+
+// Focus states
+.quantity-btn:focus-visible,
+.quantity-input:focus-visible {
+  outline: 2px solid $primary;
+  outline-offset: 2px;
+}
+
+// Loading state (optional)
+.quantity-controls.loading {
+  opacity: 0.6;
+  pointer-events: none;
 }
 
 .set-items-list {
@@ -1796,3 +2042,601 @@ svg{
     margin: 20px;
   }
 }
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  padding: 4px 10px;
+  font-size: $font-xs;
+  font-weight: 600;
+  border-radius: $radius-sm;
+
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  white-space: nowrap;
+
+  box-shadow: $shadow-soft;
+}
+.badge-success {
+  background: rgba($success, 0.15);
+  color: $success;
+  border: 1px solid rgba($success, 0.35);
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: $success;
+    box-shadow: 0 0 6px rgba($success, 0.8);
+  }
+}
+.badge-danger {
+  background: rgba($danger, 0.15);
+  color: $danger;
+  border: 1px solid rgba($danger, 0.35);
+
+  &::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    margin-right: 6px;
+    border-radius: 50%;
+    background: $danger;
+    box-shadow: 0 0 6px rgba($danger, 0.8);
+  }
+}
+
+// ========================================
+// SET DETAILS MODAL - SWAL CUSTOM STYLES
+// ========================================
+
+.swal-set-details {
+  // Modal container
+  .swal2-popup {
+    background: $box-dark;
+    border: 1px solid $border-light;
+    border-radius: $radius-md;
+    padding: $space-lg;
+    
+    max-width: 600px;
+    box-shadow: $shadow-heavy;
+  }
+
+  // Title
+  .swal2-title {
+    color: $white;
+    font-size: $font-xl;
+    font-weight: 700;
+    margin-bottom: $space-lg;
+    padding-bottom: $space-md;
+    border-bottom: 2px solid $border-light;
+  }
+
+  // HTML Container
+  .swal2-html-container {
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    color: $soft-white;
+  }
+}
+
+// ========================================
+// SET DETAILS CONTENT
+// ========================================
+
+.set-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+
+  // Set Image
+  .set-image {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: $radius-md;
+    margin-bottom: $space-md;
+    border: 2px solid $border-dark;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  // Description
+  .set-description {
+    color: $soft-white;
+    font-size: $font-sm;
+    line-height: 1.6;
+    margin-bottom: $space-md;
+    padding: $space-sm $space-md;
+    background: rgba($box-light, 0.5);
+    border-radius: $radius-sm;
+    border-left: 3px solid $primary;
+  }
+
+  // Items Container
+  .set-items-container {
+    background: rgba($main-dark, 0.8);
+    padding: $space-md;
+    border-radius: $radius-md;
+    border: 1px solid $border-dark;
+    margin-bottom: $space-md;
+
+    .items-title {
+      color: $white;
+      font-size: $font-md;
+      font-weight: 600;
+      margin: 0 0 $space-md 0;
+      padding-bottom: $space-sm;
+      border-bottom: 1px solid $border-dark;
+    }
+
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: $space-xs;
+    }
+  }
+
+  // Individual Item
+  .set-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-sm $space-md;
+    background: rgba($primary, 0.1);
+    border-radius: $radius-sm;
+    border-left: 3px solid $primary;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba($primary, 0.15);
+      transform: translateX(4px);
+    }
+
+    .item-name {
+      color: $white;
+      font-weight: 500;
+      font-size: $font-sm;
+      flex: 1;
+    }
+
+    .item-quantity {
+      background: $primary;
+      color: $white;
+      padding: 4px 14px;
+      border-radius: $radius-sm;
+      font-size: $font-sm;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba($primary, 0.3);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: $primary-light;
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  // Empty State
+  .items-empty {
+    color: $white-2nd;
+    text-align: center;
+    padding: $space-xl;
+    font-size: $font-sm;
+    font-style: italic;
+  }
+
+  // Total Price Section
+  .set-total-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-md $space-lg;
+    background: linear-gradient(135deg, $primary 0%, $primary-dark 100%);
+    border-radius: $radius-md;
+    box-shadow: $shadow-medium;
+    margin-top: $space-md;
+
+    .price-label {
+      color: $white;
+      font-weight: 600;
+      font-size: $font-md;
+    }
+
+    .price-value {
+      color: $primary-light;
+      font-weight: 700;
+      font-size: $font-xl;
+      text-shadow: 0 2px 4px rgba($black, 0.3);
+    }
+  }
+}
+
+// ========================================
+// CONFIRM BUTTON (X icon)
+// ========================================
+
+// ========================================
+// SET DETAILS MODAL - SWAL CUSTOM STYLES
+// ========================================
+
+.swal-set-details {
+  background: $box-dark;
+    border: none;
+    border-radius: $radius-md;
+    padding: $space-lg;
+    max-width: 500px;
+    box-shadow: $shadow-heavy;
+  
+
+  .swal2-title {
+    color: $white;
+    font-size: $font-lg;
+    font-weight: 700;
+    margin-bottom: $space-md;
+    padding-bottom: $space-xs;
+    border-bottom: 2px solid $border-light;
+  }
+
+  .swal2-html-container {
+    padding: 0;
+    margin: 0;
+    text-align: left;
+    color: $soft-white;
+  }
+}
+
+// ========================================
+// SET DETAILS CONTENT
+// ========================================
+
+.set-details-content {
+  display: flex;
+  flex-direction: column;
+  gap: $space-md;
+
+  // Set Image
+  .set-image {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    border-radius: $radius-md;
+    margin-bottom: 0;
+    border: 2px solid $border-dark;
+    transition: transform 0.3s ease;
+
+    &:hover {
+      transform: none;
+      -webkit-transform: none;
+      -moz-transform: none;
+      -ms-transform: none;
+      -o-transform: none;
+      -webkit-transform: none;
+}
+  }
+
+  // Description
+  .set-description {
+    color: $soft-white;
+    font-size: $font-sm;
+    line-height: 1.6;
+    margin-bottom: 0;
+    padding: 0 $space-xs;
+    background: none;
+    border-radius: $radius-sm;
+    border-left: none;
+  }
+
+  // Items Container
+  .set-items-container {
+    background: rgba($main-dark, 0.8);
+    padding: $space-md;
+    border-radius: $radius-md;
+    border: 1px solid $border-dark;
+    margin-bottom: 0;
+
+    .items-title {
+      color: $white;
+      font-size: $font-md;
+      font-weight: 600;
+      margin: 0 0 $space-md 0;
+      padding-bottom: $space-sm;
+      border-bottom: 1px solid $border-dark;
+    }
+
+    .items-list {
+      display: flex;
+      flex-direction: column;
+      gap: $space-xs;
+    }
+  }
+
+  // Individual Item
+  .set-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-xs $space-sm;
+    background: rgba($primary, 0.1);
+    border-radius: $radius-sm;
+    border-left: 3px solid $primary;
+    transition: all 0.2s ease;
+
+    &:hover {
+      background: rgba($primary, 0.15);
+      transform: translateX(4px);
+    }
+
+    .item-name {
+      color: $white;
+      font-weight: 500;
+      font-size: $font-sm;
+      flex: 1;
+    }
+
+    .item-quantity {
+      background: linear-gradient(135deg, $primary-dark 0%, $primary 50%, $primary 100%);
+      color: $white;
+      padding: 4px 14px;
+      border-radius: $radius-sm;
+      font-size: $font-sm;
+      font-weight: 700;
+      white-space: nowrap;
+      box-shadow: 0 2px 6px rgba($primary, 0.3);
+      transition: all 0.2s ease;
+
+      &:hover {
+        background: linear-gradient(135deg, $primary  0%, $primary 50%,  $primary-dark 100%);
+        transform: scale(1.05);
+      }
+    }
+  }
+
+  // Empty State
+  .items-empty {
+    color: $white-2nd;
+    text-align: center;
+    padding: $space-xl;
+    font-size: $font-sm;
+    font-style: italic;
+  }
+
+  // Total Price Section
+  .set-total-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: $space-xs $space-sm;
+    background: linear-gradient(135deg, $primary-dark 0%, $primary 50%, $primary 100%);
+    border-radius: $radius-sm;
+    box-shadow: none;
+    margin: 0;
+    -webkit-border-radius: $radius-sm;
+    -moz-border-radius: $radius-sm;
+    -ms-border-radius: $radius-sm;
+    -o-border-radius: $radius-sm;
+   .price-label{
+      color: $white;
+      font-weight: 600;
+      font-size: $font-md;
+    }
+
+    .price-value {
+      color: $primary-light;
+      font-weight: 700;
+      font-size: $font-lg;
+      text-shadow: 0 2px 4px rgba($black, 0.3);
+    }
+  }
+}
+
+// ========================================
+// CONFIRM BUTTON (X icon)
+// ========================================
+
+.swal-set-details {
+  .swal2-confirm {
+    position: absolute;
+  top: 12px;
+  right: 12px;
+  background: rgba(0, 0, 0, 0.6);
+  border: none;
+  color: white;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex !important;
+  box-shadow: none !important;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  padding: 0;
+      &:hover {
+        background: rgba(220, 53, 69, 0.9);
+  transform: scale(1.1);
+      }
+
+    &:active {
+      transform: translateY(0);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 3px rgba($primary, 0.3);
+    }
+  }
+}
+
+// ========================================
+// ANIMATIONS
+// ========================================
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.set-details-content {
+  animation: fadeInUp 0.3s ease;
+
+  .set-item {
+    animation: fadeInUp 0.3s ease;
+    animation-fill-mode: both;
+
+    @for $i from 1 through 10 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{$i * 0.05}s;
+      }
+    }
+  }
+}
+
+// ========================================
+// RESPONSIVE
+// ========================================
+
+@include responsive(tablet) {
+  .swal-set-details {
+    .swal2-popup {
+      max-width: 90%;
+      padding: $space-md;
+    }
+  }
+
+  .set-details-content {
+    .set-image {
+      max-height: 180px;
+    }
+
+    .set-item {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: $space-xs;
+
+      .item-quantity {
+        align-self: flex-end;
+      }
+    }
+
+    .set-total-price {
+      flex-direction: column;
+      gap: $space-sm;
+      text-align: center;
+
+      .price-value {
+        font-size: $font-lg;
+      }
+    }
+  }
+}
+
+@include responsive(mobile) {
+  .swal-set-details {
+    .swal2-popup {
+      max-width: 95%;
+      padding: $space-sm;
+      border-radius: $radius-sm;
+    }
+
+    .swal2-title {
+      font-size: $font-lg;
+      margin-bottom: $space-md;
+    }
+  }
+
+  .set-details-content {
+    gap: $space-sm;
+
+    .set-image {
+      max-height: 150px;
+      border-radius: $radius-sm;
+    }
+
+    .set-description {
+      font-size: $font-xs;
+      padding: $space-xs $space-sm;
+    }
+
+    .set-items-container {
+      padding: $space-sm;
+
+      .items-title {
+        font-size: $font-sm;
+        margin-bottom: $space-sm;
+      }
+    }
+
+    .set-item {
+      padding: $space-xs $space-sm;
+
+      .item-name {
+        font-size: $font-xs;
+      }
+
+      .item-quantity {
+        padding: 3px 10px;
+        font-size: $font-xs;
+      }
+    }
+
+    .set-total-price {
+      padding: $space-sm $space-md;
+      gap: $space-xs;
+
+      .price-label {
+        font-size: $font-sm;
+      }
+
+      .price-value {
+        font-size: $font-md;
+      }
+    }
+  }
+}
+
+// ========================================
+// SCROLLBAR (Çox məhsul olduqda)
+// ========================================
+
+.set-items-container .items-list {
+  max-height: 300px;
+  overflow-y: auto;
+
+  &::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: $soft-black;
+    border-radius: $radius-sm;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: $primary;
+    border-radius: $radius-sm;
+
+    &:hover {
+      background: $primary-light;
+    }
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: $primary $soft-black;
+}
+

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Upload, ImageIcon } from 'lucide-react';
+import { X, Upload, ImageIcon, Plus, Minus } from 'lucide-react';
 import { supabase } from '../../services/supabaseClient';
 
 const SetModal = ({ set, menuItems, onSave, onClose }) => {
@@ -10,6 +10,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
     image_url: '',
     is_available: true
   });
+  // selectedItems artıq { id, quantity } obyektləri array-idir
   const [selectedItems, setSelectedItems] = useState([]);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -24,7 +25,14 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
         image_url: set.image_url,
         is_available: set.is_available
       });
-      setSelectedItems(set.set_items?.map(si => si.menu_item_id) || []);
+      
+      // Set items-dən quantity məlumatını alırıq
+      const items = set.set_items?.map(si => ({
+        id: si.menu_item_id,
+        quantity: si.quantity || 1
+      })) || [];
+      setSelectedItems(items);
+      
       if (set.image_url) {
         setImagePreview(set.image_url);
       }
@@ -40,11 +48,46 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
   };
 
   const handleItemToggle = (itemId) => {
-    setSelectedItems(prev =>
-      prev.includes(itemId)
-        ? prev.filter(id => id !== itemId)
-        : [...prev, itemId]
+    setSelectedItems(prev => {
+      const exists = prev.find(item => item.id === itemId);
+      if (exists) {
+        // Məhsulu sil
+        return prev.filter(item => item.id !== itemId);
+      } else {
+        // Məhsulu əlavə et (default quantity: 1)
+        return [...prev, { id: itemId, quantity: 1 }];
+      }
+    });
+  };
+
+  const handleQuantityChange = (itemId, change) => {
+    setSelectedItems(prev => 
+      prev.map(item => {
+        if (item.id === itemId) {
+          const newQuantity = Math.max(1, item.quantity + change);
+          return { ...item, quantity: newQuantity };
+        }
+        return item;
+      })
     );
+  };
+
+  const handleQuantityInput = (itemId, value) => {
+    const quantity = parseInt(value) || 1;
+    setSelectedItems(prev =>
+      prev.map(item =>
+        item.id === itemId ? { ...item, quantity: Math.max(1, quantity) } : item
+      )
+    );
+  };
+
+  const isItemSelected = (itemId) => {
+    return selectedItems.some(item => item.id === itemId);
+  };
+
+  const getItemQuantity = (itemId) => {
+    const item = selectedItems.find(item => item.id === itemId);
+    return item ? item.quantity : 1;
   };
 
   const handleImageChange = (e) => {
@@ -55,7 +98,6 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
         return;
       }
 
-      // Fayl növü yoxlaması
       if (!file.type.startsWith('image/')) {
         alert('Yalnız şəkil faylları yükləyə bilərsiniz');
         return;
@@ -123,7 +165,7 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
         ...formData,
         image_url: imageUrl
       },
-      items: selectedItems
+      items: selectedItems // { id, quantity } formatında
     });
   };
 
@@ -211,17 +253,53 @@ const SetModal = ({ set, menuItems, onSave, onClose }) => {
           <div className="form-group">
             <label>Məhsulları Seçin *</label>
             <div className="checkbox-list">
-              {menuItems.map(item => (
-                <label key={item.id} className="checkbox-item">
-                  <input
-                    type="checkbox"
-                    className="custom-checkbox" 
-                    checked={selectedItems.includes(item.id)}
-                    onChange={() => handleItemToggle(item.id)}
-                  />
-                  {item.name} ({item.price} AZN)
-                </label>
-              ))}
+              {menuItems.map(item => {
+                const isSelected = isItemSelected(item.id);
+                const quantity = getItemQuantity(item.id);
+                
+                return (
+                  <div key={item.id} className="checkbox-item-container">
+                    <label className="checkbox-item">
+                      <input
+                        type="checkbox"
+                        className="custom-checkbox" 
+                        checked={isSelected}
+                        onChange={() => handleItemToggle(item.id)}
+                      />
+                      <span className="item-name">
+                        {item.name} ({item.price} AZN)
+                      </span>
+                    </label>
+                    
+                    {isSelected && (
+                      <div className="quantity-controls">
+                        <button
+                          type="button"
+                          className="quantity-btn"
+                          onClick={() => handleQuantityChange(item.id, -1)}
+                          disabled={quantity <= 1}
+                        >
+                          <Minus size={16} />
+                        </button>
+                        <input
+                          type="number"
+                          className="quantity-input"
+                          value={quantity}
+                          onChange={(e) => handleQuantityInput(item.id, e.target.value)}
+                          min="1"
+                        />
+                        <button
+                          type="button"
+                          className="quantity-btn"
+                          onClick={() => handleQuantityChange(item.id, 1)}
+                        >
+                          <Plus size={16} />
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           </div>
 

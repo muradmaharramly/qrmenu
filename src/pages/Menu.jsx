@@ -63,8 +63,30 @@ const Menu = () => {
 
       const filteredItems = (itemsData || []).filter(shouldShowItem);
 
+      // Custom sort for sets to handle "Name Number" pattern correctly (e.g. Set 1, Set 2, Set 10)
+      const sortedSets = (setsData || []).sort((a, b) => {
+        const nameA = a.name.trim();
+        const nameB = b.name.trim();
+        
+        // Extract prefix and number
+        const regex = /^(.*?)(\d+)\s*$/;
+        const matchA = nameA.match(regex);
+        const matchB = nameB.match(regex);
+
+        if (matchA && matchB) {
+          const prefixA = matchA[1].trim().toLowerCase();
+          const prefixB = matchB[1].trim().toLowerCase();
+          
+          if (prefixA === prefixB) {
+            return parseInt(matchA[2], 10) - parseInt(matchB[2], 10);
+          }
+        }
+        
+        return nameA.localeCompare(nameB, undefined, { numeric: true, sensitivity: 'base' });
+      });
+
       setMenuItems(filteredItems);
-      setSets(setsData || []);
+      setSets(sortedSets);
       setDiscounts(discountsData || []);
 
       const uniqueCategories = [
@@ -78,13 +100,20 @@ const Menu = () => {
     }
   };
 
+  const isTimeInRange = (start, end, current) => {
+    if (start <= end) {
+      return current >= start && current <= end;
+    }
+    // Range crosses midnight (e.g. 18:00 to 03:00)
+    return current >= start || current <= end;
+  };
+
   const getDiscountedPrice = (itemId, price) => {
     const time = new Date().toTimeString().slice(0, 5);
     const d = discounts.find(
       x =>
         x.menu_item_id === itemId &&
-        x.start_time <= time &&
-        x.end_time >= time
+        isTimeInRange(x.start_time, x.end_time, time)
     );
 
     if (!d) return { hasDiscount: false, price };
@@ -102,8 +131,7 @@ const Menu = () => {
     const d = discounts.find(
       x =>
         x.set_id === setId &&
-        x.start_time <= time &&
-        x.end_time >= time
+        isTimeInRange(x.start_time, x.end_time, time)
     );
 
     if (!d) return { hasDiscount: false, price };

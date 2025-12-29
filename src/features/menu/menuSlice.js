@@ -171,7 +171,7 @@ export const updateSet = createAsyncThunk(
       if (setError) throw setError
 
       // 2. Əgər items göndərilibsə, set_items-ləri yenilə
-      if (items && items.length > 0) {
+      if (items) {
         // Köhnə set_items-ləri sil
         const { error: deleteError } = await supabase
           .from('set_items')
@@ -180,18 +180,20 @@ export const updateSet = createAsyncThunk(
 
         if (deleteError) throw deleteError
 
-        // Yeni set_items əlavə et (quantity ilə)
-        const setItems = items.map(item => ({
-          set_id: id,
-          menu_item_id: item.id,
-          quantity: item.quantity || 1
-        }))
+        // Yeni set_items əlavə et (quantity ilə) - Yalnız əgər items boş deyilsə
+        if (items.length > 0) {
+          const setItems = items.map(item => ({
+            set_id: id,
+            menu_item_id: item.id,
+            quantity: item.quantity || 1
+          }))
 
-        const { error: itemsError } = await supabase
-          .from('set_items')
-          .insert(setItems)
+          const { error: itemsError } = await supabase
+            .from('set_items')
+            .insert(setItems)
 
-        if (itemsError) throw itemsError
+          if (itemsError) throw itemsError
+        }
       }
 
       // 3. Yenilənmiş məlumatı geri qaytar

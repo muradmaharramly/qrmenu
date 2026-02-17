@@ -1,0 +1,8 @@
+[functions]
+  # Optional but recommended for modern bundling
+  node_bundler = "esbuild"
+
+# Configure the scheduled function by its function name: "supabase-keep-alive"
+[functions."supabase-keep-alive"]
+  # Cron: minute 0, every 6th hour, every day (UTC)
+  schedule = "0 */6 * * *"

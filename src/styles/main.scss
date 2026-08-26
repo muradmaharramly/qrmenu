@@ -1576,6 +1576,23 @@ svg{
 // LOADING & ALERTS
 // ============================================
 
+.menu-container .empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $space-xxl;
+  color: $white-2nd;
+  text-align: center;
+  min-height: 200px;
+  
+  svg {
+    margin-bottom: $space-md;
+    opacity: 0.5;
+  }
+}
+
+
 .loading {
   @include flex-center;
   padding: $space-xxl;

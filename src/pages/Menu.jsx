@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { supabase } from '../services/supabase';
 import { QrCode as QrIcon } from 'lucide-react';
 import { IoLocationSharp, IoCall } from 'react-icons/io5';
+import { MdNoFood } from 'react-icons/md';
 import NardiLogo from '../images/logo-nardi.jpg';
 
 const Menu = () => {
@@ -232,7 +233,9 @@ const Menu = () => {
       {/* SETS */}
       {(activeCategory === 'all' || activeCategory === 'sets') && filteredSets.length > 0 && (
         <div className="category-section">
-          <h2 className="category-title">Setlər</h2>
+          <h2 className="category-title">
+            {activeCategory === 'all' ? 'Menyudakı məhsullar' : 'Setlər'}
+          </h2>
           <div className="menu-grid">
             {filteredSets.map(set => {
               const price = getSetDiscountedPrice(set.id, set.total_price);
@@ -351,8 +354,8 @@ const Menu = () => {
 
       {!filteredMenuItems.length && !filteredSets.length && (
         <div className="empty-state">
-          <QrIcon size={48} />
-          <p>Menyu mövcud deyil</p>
+          <MdNoFood size={48} />
+          <p>Axtarışa uyğun nəticə yoxdur</p>
         </div>
       )}
     </div>

@@ -14,6 +14,7 @@ const Menu = () => {
   const [categories, setCategories] = useState([]);
   const [activeCategory, setActiveCategory] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     fetchMenuData();
@@ -148,6 +149,16 @@ const Menu = () => {
     return <div className="loading"><div className="spinner" /></div>;
   }
 
+  const filteredSets = sets.filter(set =>
+    set.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (set.description && set.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
+  const filteredMenuItems = menuItems.filter(item =>
+    item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    (item.description && item.description.toLowerCase().includes(searchQuery.toLowerCase()))
+  );
+
   return (
     <div className="menu-container">
       <div className="menu-header">
@@ -207,12 +218,23 @@ const Menu = () => {
         ))}
       </div>
 
+      {/* SEARCH BAR */}
+      <div className="search-container">
+        <input
+          type="text"
+          placeholder="Axtarış..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="search-input"
+        />
+      </div>
+
       {/* SETS */}
-      {(activeCategory === 'all' || activeCategory === 'sets') && sets.length > 0 && (
+      {(activeCategory === 'all' || activeCategory === 'sets') && filteredSets.length > 0 && (
         <div className="category-section">
           <h2 className="category-title">Setlər</h2>
           <div className="menu-grid">
-            {sets.map(set => {
+            {filteredSets.map(set => {
               const price = getSetDiscountedPrice(set.id, set.total_price);
               return (
                 <div key={set.id} className="menu-item-card">
@@ -255,7 +277,7 @@ const Menu = () => {
       {categories
         .filter(cat => activeCategory === 'all' || activeCategory === cat)
         .map(cat => {
-          const items = menuItems.filter(i => i.category === cat);
+          const items = filteredMenuItems.filter(i => i.category === cat);
           if (!items.length) return null;
 
           return (
@@ -294,11 +316,11 @@ const Menu = () => {
 
       {/* NO CATEGORY */}
       {activeCategory === 'all' &&
-        menuItems.filter(i => !i.category).length > 0 && (
+        filteredMenuItems.filter(i => !i.category).length > 0 && (
           <div className="category-section">
             <h2 className="category-title">Digər Məhsullar</h2>
             <div className="menu-grid">
-              {menuItems.filter(i => !i.category).map(item => {
+              {filteredMenuItems.filter(i => !i.category).map(item => {
                 const price = getDiscountedPrice(item.id, item.price);
                 return (
                   <div key={item.id} className="menu-item-card">
@@ -327,7 +349,7 @@ const Menu = () => {
           </div>
         )}
 
-      {!menuItems.length && !sets.length && (
+      {!filteredMenuItems.length && !filteredSets.length && (
         <div className="empty-state">
           <QrIcon size={48} />
           <p>Menyu mövcud deyil</p>

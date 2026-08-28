@@ -21,10 +21,8 @@ exports.handler = async (event, context) => {
   }
 
   // Build a request to the PostgREST API endpoint.
-  // Querying the REST API root returns the OpenAPI spec and actively hits the Postgres database,
-  // which is required to prevent the project from pausing (unlike auth health checks).
-  // We can also query a generic endpoint just to ensure PostgREST is reached.
-  const healthUrl = new URL("/rest/v1/", supabaseUrl).toString();
+  // We can also query a specific table to ensure PostgREST actively hits the Postgres database.
+  const healthUrl = new URL("/rest/v1/menu_items?limit=1", supabaseUrl).toString();
 
   const startedAt = Date.now();
 
